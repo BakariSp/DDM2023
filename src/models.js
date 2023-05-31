@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
 import { PLYLoader } from 'three/addons/loaders/PLYLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const canvas = document.getElementById('three-container');
@@ -29,11 +30,10 @@ let mouse = new THREE.Vector2();
 
 
 
-let edgesMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
-
 // var container = document.getElementById('three-container');
 var renderer = new THREE.WebGLRenderer( { canvas });
 renderer.setSize(width, height);
+renderer.setClearColor(0xffffff, 1);
 // container.appendChild(renderer.domElement);
 let lastFrameTime = 0;
 const frameInterval = 1000 / 60; 
@@ -55,7 +55,7 @@ var radius = 3;
 
 
 
-// render();
+// functions
 function vis_switch( mesh, gate1, gate2){
     var scrollPos = window.scrollY;
     if (scrollPos < gate2 && scrollPos > gate1 && mesh.visible == false ){
@@ -74,20 +74,17 @@ function op_change(mesh){
     mesh.emissiveIntensity  = scrollPos%1000 / 1000;
 }
 
+
 function init() {
-    
 
     rotationSpeed = 0.005;
-
     camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 1, 15 );
     camera.position.set( 3, 0.15, 3 );
     cameraTarget = new THREE.Vector3( 0, 0, 0 );
-
     scene = new THREE.Scene();
-    //scene.background = new THREE.Color( 000000 );
     scene.fog = new THREE.Fog( 0x72645b, 2, 15 );
 
-    const color = 0xFFFFFF;
+    const color = 0x000000;
     const intensity = 0.1;
     const light = new THREE.DirectionalLight(color, intensity);
     light.position.set(-1, 2, 4);
@@ -95,23 +92,35 @@ function init() {
 
     // PLY file
     const loader = new PLYLoader();
-    loader.load( './models/ply/ascii/dolphins.ply', function ( geometry ) {
+    const gltfloader = new GLTFLoader();
 
-        geometry.computeVertexNormals();
+    gltfloader.load( './models/gltf/line.gltf', function ( object ) {
 
-        const material = new THREE.PointsMaterial( { size: 0.01 } );
-        const mesh = new THREE.Points( geometry, material );
+        // geometry.computeVertexNormals();
+        console.log('Loaded object:', object);
+        const lineMaterial = new THREE.LineBasicMaterial( {
+            color: 0x000000,
+            linewidth: 1,
+            linecap: 'round', //ignored by WebGLRenderer
+            linejoin:  'round' //ignored by WebGLRenderer
+        } );
+        
+        object.traverse(function (child) {
+            if (child instanceof THREE.Line) {
+                console.log('Line material:', child.material);
+                console.log('Line geometry:', child.geometry);
+                child.material = lineMaterial;
+            }
+          });
 
-        mesh.position.y = - 0.2;
-        mesh.position.z = 0.3;
-        mesh.rotation.x = - Math.PI / 2;
-        mesh.scale.multiplyScalar( 0.001 );
-        mesh.visible = false;
-
-        scene.add( mesh );
-        console.log(scene);
-
+        object.rotation.x = -Math.PI / 2;
+        object.scale.multiplyScalar(0.01);
+        object.position.set(0.5, -0.5, 0.5);
+        
+        scene.add( object );
+        console.log('Scene:', scene);
     } );
+
 
     loader.load( './models/ply/ascii/test.ply', function ( geometry ) {
 
@@ -137,43 +146,6 @@ function init() {
     } );
 
 
-    loader.load('./models/ply/ascii/txt_model_2.ply', function (geometry) {
-        geometry.computeVertexNormals();
-    
-        // Make the original model fully transparent
-        const material = new THREE.MeshStandardMaterial({
-            color: 0xffffff,
-            emissive: 0xffffff,
-            emissiveIntensity: 0.1,
-            opacity: 0.0,
-            transparent: true,
-        });
-    
-        window.addEventListener('scroll', (event) => {
-            op_change(material);
-        });
-    
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.rotation.x = -Math.PI / 2;
-        mesh.scale.multiplyScalar(0.1);
-        scene.add(mesh);
-    
-        // Create the EdgesGeometry for the model
-        const edgesGeometry = new THREE.EdgesGeometry(mesh.geometry);
-    
-        // Create a LineBasicMaterial for the edges with white color
-        const edgesMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
-    
-        // Create a LineSegments mesh using the edges geometry and material
-        const edgesMesh = new THREE.LineSegments(edgesGeometry, edgesMaterial);
-    
-        // Scale and rotate the edges mesh to match the original model
-        edgesMesh.rotation.x = -Math.PI / 2;
-        edgesMesh.scale.multiplyScalar(0.1);
-    
-        // Add the edges mesh to the scene
-        scene.add(edgesMesh);
-    });
 
 
     loader.load('./models/ply/ascii/bench.ply', function (geometry) {
@@ -202,7 +174,7 @@ function init() {
         scene.add(edgesMesh);
     });
 
-    loader.load('./models/ply/ascii/environments.ply', function (geometry) {
+    loader.load('./models/ply/ascii/env_yuan.ply', function (geometry) {
         geometry.computeVertexNormals();
     
         
@@ -210,7 +182,7 @@ function init() {
         const edgesGeometry = new THREE.EdgesGeometry(geometry);
     
         // Create a LineBasicMaterial for the edges with white color
-        const edgesMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+        const edgesMaterial = new THREE.LineBasicMaterial({ color: 0xA9A9A9 });
     
         // Create a LineSegments mesh using the edges geometry and material
         const edgesMesh = new THREE.LineSegments(edgesGeometry, edgesMaterial);
@@ -270,7 +242,7 @@ function init() {
         document.getElementById('button_2').addEventListener('click', () => {
             mesh.visible = !mesh.visible;
         });
-        console.log(window.scrollY);
+        // console.log(window.scrollY);
         /*window.onscroll = function(){
             scrollPosition = window.scrollY;
             if (scrollPosition > 500 && txt_visible == false){
