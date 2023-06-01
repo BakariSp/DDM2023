@@ -282,7 +282,7 @@ function init() {
     });
 
 
-    /*
+    
     loader.load('./models/ply/ascii/env_yuan.ply', function (geometry) {
         geometry.computeVertexNormals();
     
@@ -303,7 +303,7 @@ function init() {
     
         // Add the edges mesh to the scene
         scene.add(edgesMesh);
-    });*/
+    });
 
     
 
