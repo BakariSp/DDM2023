@@ -94,34 +94,141 @@ function init() {
     const loader = new PLYLoader();
     const gltfloader = new GLTFLoader();
 
-    gltfloader.load( './models/gltf/line.gltf', function ( object ) {
+    // Load your GLTF file
+    /*
+    gltfloader.load(
+        './models/gltf/scene_2.gltf',
+        function (gltf) {
+        // The loaded object is a group (or a scene) that contains all the models
+        // gltf.scene.traverse(function (child) {
+        //     console.log(child);
+        //     // This is a line. You can apply your line material here.
+        //     const lineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });
+        //     child.material = lineMaterial;
+        // });
+        // // Add the loaded object to your scene
+        scene.add(gltf.scene);
+        },
+        undefined,
+        function (error) {
+        console.error('An error happened', error);
+        }
+    );*/
 
-        // geometry.computeVertexNormals();
-        console.log('Loaded object:', object);
-        const lineMaterial = new THREE.LineBasicMaterial( {
-            color: 0x000000,
-            linewidth: 1,
-            linecap: 'round', //ignored by WebGLRenderer
-            linejoin:  'round' //ignored by WebGLRenderer
-        } );
+    /*
+    gltfloader.load(
+        './models/gltf/skull/scene.gltf',
         
-        object.traverse(function (child) {
-            if (child instanceof THREE.Line) {
-                console.log('Line material:', child.material);
-                console.log('Line geometry:', child.geometry);
-                child.material = lineMaterial;
+        function (gltf) {
+          // The loaded object is a group (or a scene) that contains all the models
+          gltf.scene.position.set(0, 0, 0); // Adjust position as needed
+          gltf.scene.rotation.set(0, 0, 0); // Adjust rotation as needed
+
+          gltf.scene.traverse(function (child) {
+            if (child instanceof THREE.Mesh) {
+              // This is a mesh. You can apply your material here.
+              const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+              child.material = material;
             }
           });
+          // Add the loaded object to your scene
+          scene.add(gltf.scene);
+        },
+        undefined,
+        function (error) {
+          console.error('An error happened', error);
+        }
+    );*/
 
-        object.rotation.x = -Math.PI / 2;
-        object.scale.multiplyScalar(0.01);
-        object.position.set(0.5, -0.5, 0.5);
+   
+    loader.load('./models/ply/ascii/curve.ply', function (geometry) {
+        geometry.computeVertexNormals();
+    
         
-        scene.add( object );
-        console.log('Scene:', scene);
-    } );
+        // Create the EdgesGeometry for the model
+        const edgesGeometry = new THREE.EdgesGeometry(geometry);
+    
+        // Create a LineBasicMaterial for the edges with white color
+        const edgesMaterial = new THREE.LineBasicMaterial({ color: 0xA9A9A9 });
+    
+        // Create a LineSegments mesh using the edges geometry and material
+        const edgesMesh = new THREE.LineSegments(edgesGeometry, edgesMaterial);
+    
+        // Scale and rotate the edges mesh to match the original model
+        edgesMesh.rotation.x = -Math.PI / 2;
+        edgesMesh.scale.multiplyScalar(0.01);
+        edgesMesh.position.set(0.5, -0.5, 0.5);
+    
+        // Add the edges mesh to the scene
+        scene.add(edgesMesh);
+    });
+
+    /*
+    loader.load('./models/ply/ascii/env_yuan.ply', function (geometry) {
+        geometry.computeVertexNormals();
+    
+        
+        // Create the EdgesGeometry for the model
+        const edgesGeometry = new THREE.EdgesGeometry(geometry);
+    
+        // Create a LineBasicMaterial for the edges with white color
+        const edgesMaterial = new THREE.LineBasicMaterial({ color: 0xA9A9A9 });
+    
+        // Create a LineSegments mesh using the edges geometry and material
+        const edgesMesh = new THREE.LineSegments(edgesGeometry, edgesMaterial);
+    
+        // Scale and rotate the edges mesh to match the original model
+        edgesMesh.rotation.x = -Math.PI / 2;
+        edgesMesh.scale.multiplyScalar(0.01);
+        edgesMesh.position.set(0.5, -0.5, 0.5);
+    
+        // Add the edges mesh to the scene
+        scene.add(edgesMesh);
+    });*/
 
 
+    gltfloader.load(
+        './models/gltf/sample_1.gltf',
+        function (gltf) {
+        // The loaded object is a group (or a scene) that contains all the models
+        // gltf.scene.traverse(function (child) {
+        //     console.log(child);
+        //     // This is a line. You can apply your line material here.
+        //     const lineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });
+        //     child.material = lineMaterial;
+        // });
+        // // Add the loaded object to your scene
+        scene.add(gltf.scene);
+        },
+        undefined,
+        function (error) {
+        console.error('An error happened', error);
+        }
+    );
+
+
+    gltfloader.load(
+        './models/gltf/sample_2.gltf',
+        function (gltf) {
+        // The loaded object is a group (or a scene) that contains all the models
+        // gltf.scene.traverse(function (child) {
+        //     console.log(child);
+        //     // This is a line. You can apply your line material here.
+        //     const lineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });
+        //     child.material = lineMaterial;
+        // });
+        // // Add the loaded object to your scene
+        scene.add(gltf.scene);
+        },
+        undefined,
+        function (error) {
+        console.error('An error happened', error);
+        }
+    );
+
+
+    //render
+    
     loader.load( './models/ply/ascii/test.ply', function ( geometry ) {
 
         geometry.computeVertexNormals();
@@ -174,6 +281,8 @@ function init() {
         scene.add(edgesMesh);
     });
 
+
+    /*
     loader.load('./models/ply/ascii/env_yuan.ply', function (geometry) {
         geometry.computeVertexNormals();
     
@@ -194,92 +303,14 @@ function init() {
     
         // Add the edges mesh to the scene
         scene.add(edgesMesh);
-    });
+    });*/
+
     
+
     
-    
-
-
-
-    loader.load( './models/ply/ascii/barrier.ply', function ( geometry ) {
-
-        geometry.computeVertexNormals();
-        const material = new THREE.MeshStandardMaterial( { color: 0xff0000 , emissive:0xffffff,  emissiveIntensity:0.1, opacity: 0.5} );
-
-        // Create a LineSegments object using the edges geometry and material
-        const mesh = new THREE.Mesh( geometry, material );
-
-
-        mesh.rotation.x = -Math.PI / 2;
-        mesh.position.y = 0.5;
-        mesh.scale.multiplyScalar( 0.05 );
-
-        window.addEventListener('scroll', (event) => {
-            vis_switch( mesh, 0, 1000);
-            vis_switch( mesh, 2000, 3000);
-        });
-
-        scene.add( mesh );
-
-    } );
-
-
-    loader.load( './models/ply/ascii/txt_model_pt.ply', function ( geometry ) {
-
-        geometry.computeVertexNormals();
-
-        const material = new THREE.PointsMaterial( { size: 0.01 } );
-        
-        const mesh = new THREE.Points( geometry, material );
-        // console.log( mesh );
-        
-        mesh.rotation.x = -Math.PI / 2;
-        mesh.scale.multiplyScalar( 0.1 );
-        mesh.visible = false;
-        window.addEventListener('scroll', (event) => {
-            vis_switch( mesh, 1000, 2000);
-        });
-        document.getElementById('button_2').addEventListener('click', () => {
-            mesh.visible = !mesh.visible;
-        });
-        // console.log(window.scrollY);
-        /*window.onscroll = function(){
-            scrollPosition = window.scrollY;
-            if (scrollPosition > 500 && txt_visible == false){
-                mesh.visible = !mesh.visible;
-                txt_visible = true; 
-            }else{
-                txt_visible = false;
-            }
-        }*/
-        scene.add( mesh );
-    } );
-
-    loader.load( './models/ply/ascii/pt_cloud.ply', function ( geometry ) {
-
-        geometry.computeVertexNormals();
-
-        const material = new THREE.PointsMaterial( { size: 0.01 } );
-        
-        const mesh = new THREE.Points( geometry, material );
-        // console.log( mesh );
-        mesh.position.y = 0.5;
-        mesh.position.z = 0;
-        mesh.rotation.x = -Math.PI / 2;
-        mesh.scale.multiplyScalar( 0.05 );
-        mesh.visible = false;
-        window.addEventListener('scroll', (event) => {
-            vis_switch( mesh, 2000, 3000);
-        });
-        document.getElementById('button_3').addEventListener('click', () => {
-            mesh.visible = !mesh.visible;
-        });
-        
-        scene.add( mesh );
-    } );
 
     window.addEventListener('mousedown', (event) => {
-        rotationSpeed = 0.00005;
+        rotationSpeed = 0.00000;
     });
 
     window.addEventListener('mouseup', (event) => {

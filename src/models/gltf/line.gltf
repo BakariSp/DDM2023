@@ -1,1 +1,61 @@
-{"asset" : {"generator" : "Aspose.3D 23.4.0", "version" : "2.0"}, "scene" : 0, "scenes" : [{}]}
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v3.4.50",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0,
+                1,
+                2,
+                3,
+                4
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "name" : "BezierCircle",
+            "scale" : [
+                200,
+                200,
+                200
+            ]
+        },
+        {
+            "name" : "BezierCircle.001",
+            "scale" : [
+                233.27847290039062,
+                1,
+                233.27847290039062
+            ]
+        },
+        {
+            "name" : "BezierCircle.002",
+            "scale" : [
+                279.2986145019531,
+                1,
+                279.2986145019531
+            ]
+        },
+        {
+            "name" : "BezierCircle.003",
+            "scale" : [
+                318.61572265625,
+                1,
+                318.61572265625
+            ]
+        },
+        {
+            "name" : "BezierCircle.004",
+            "scale" : [
+                356.538818359375,
+                1,
+                356.538818359375
+            ]
+        }
+    ]
+}
