@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "gifler": "^0.1.0",
     "whatwg-fetch": "^3.6.2"
   }
 }

@@ -6,35 +6,22 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const canvas = document.getElementById('three-container');
 // Set the position and size of the canvas element.
-canvas.style.position = 'fixed';
-canvas.style.left = '0';
-canvas.style.top = '0';
-canvas.style.width = '100%';
-canvas.style.height = '100%';
-
-
-
-// Set the overflow property of the canvas element to "hidden" to prevent it from showing scrollbars.
+// Add CSS styles
+document.body.style.margin = '0';
+document.body.style.overflow = 'scroll';
+canvas.style.position = 'absolute';
+canvas.style.top = '50%';
+canvas.style.left = '50%';
+canvas.style.transform = 'translate(-50%, -50%)';
 canvas.style.overflow = 'hidden';
 
-// Set the overflow property of the body element to "scroll" to allow other elements on the page to be scrolled.
-document.body.style.overflow = 'scroll';
-
-// let container, stats;
-
 let camera, cameraTarget, scene;
-const width = window.innerWidth;
-const height = window.innerHeight;
-let raycaster = new THREE.Raycaster();
-let mouse = new THREE.Vector2();
-
-
-
-// var container = document.getElementById('three-container');
-var renderer = new THREE.WebGLRenderer( { canvas });
+const width = window.innerWidth/2;
+const height = window.innerHeight/2;
+var renderer = new THREE.WebGLRenderer({ canvas });
 renderer.setSize(width, height);
 renderer.setClearColor(0xffffff, 1);
-// container.appendChild(renderer.domElement);
+
 let lastFrameTime = 0;
 const frameInterval = 1000 / 60; 
 
@@ -47,27 +34,16 @@ orbit.add(camera);
 // Add the orbit to the scene
 scene.add(orbit);
 
-// Define the rotation speed of the camera
-var rotationSpeed = 0.00;
 
-// Define the radius of the camera's orbit
-var radius = 3;
+let controls = new OrbitControls(camera, renderer.domElement);
 
+// Swap orbit and pan
+controls.mouseButtons = {
+    LEFT: THREE.MOUSE.PAN,
+    MIDDLE: THREE.MOUSE.DOLLY,
+    RIGHT: THREE.MOUSE.ROTATE
+  };
 
-
-// functions
-function vis_switch( mesh, gate1, gate2){
-    var scrollPos = window.scrollY;
-    if (scrollPos < gate2 && scrollPos > gate1 && mesh.visible == false ){
-        mesh.visible = true;
-    }else if( (scrollPos < gate1||scrollPos > gate2) && mesh.visible == true ){
-        mesh.visible = false;
-    }
-    
-    rotationSpeed = scrollPos%1000 / 100000;
-    rotationSpeed = Math.max(0.0005, rotationSpeed);
-    rotationSpeed = Math.min(0.005, rotationSpeed); 
-}
 
 function op_change(mesh){
     var scrollPos = window.scrollY;
@@ -76,13 +52,12 @@ function op_change(mesh){
 
 
 function init() {
-
-    rotationSpeed = 0.005;
     camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 1, 15 );
     camera.position.set( 3, 0.15, 3 );
     cameraTarget = new THREE.Vector3( 0, 0, 0 );
     scene = new THREE.Scene();
     scene.fog = new THREE.Fog( 0x72645b, 2, 15 );
+    
 
     const color = 0x000000;
     const intensity = 0.1;
@@ -185,7 +160,24 @@ function init() {
         // Add the edges mesh to the scene
         scene.add(edgesMesh);
     });*/
-
+    gltfloader.load(
+        './models/img/image.gltf',
+        function (gltf) {
+        // The loaded object is a group (or a scene) that contains all the models
+        // gltf.scene.traverse(function (child) {
+        //     console.log(child);
+        //     // This is a line. You can apply your line material here.
+        //     const lineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });
+        //     child.material = lineMaterial;
+        // });
+        // // Add the loaded object to your scene
+        scene.add(gltf.scene);
+        },
+        undefined,
+        function (error) {
+        console.error('An error happened', error);
+        }
+    );
 
     gltfloader.load(
         './models/gltf/sample_1.gltf',
@@ -305,34 +297,13 @@ function init() {
         scene.add(edgesMesh);
     });
 
-    
 
     
-
-    window.addEventListener('mousedown', (event) => {
-        rotationSpeed = 0.00000;
-    });
-
-    window.addEventListener('mouseup', (event) => {
-        rotationSpeed = window.scrollY%1000 / 100000;
-        rotationSpeed = Math.max(0.0005, rotationSpeed);
-        rotationSpeed = Math.min(0.005, rotationSpeed);
-    });
-    
-
-    // model = loader.parse( './models/ply/ascii/test.ply', 'ply');
-    // console.log(model);
-
-    // renderer
-    const controls = new OrbitControls( camera, renderer.domElement );
-    controls.target.set(0, 0, 0);
-    controls.update();
-    controls.enableZoom = false;
+  
     
     // resize
     scene.add(camera);
-    window.addEventListener( 'resize', onWindowResize );
-    // window.addEventListener('mousewheel', onMouseWheel, true);    
+    window.addEventListener( 'resize', onWindowResize );  
 }   
 
 
@@ -340,17 +311,16 @@ function init() {
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 
 
-function render(time) {
-    orbit.rotation.y += rotationSpeed;
 
-    // Update the position of the camera based on its orbit
-    camera.position.x = radius * Math.sin(orbit.rotation.y);
-    camera.position.z = radius * Math.cos(orbit.rotation.y);
+
+function render(time) {
+    // orbit.rotation.y += rotationSpeed;
+
 
     // Make the camera look at the target
     camera.lookAt(cameraTarget);
@@ -367,21 +337,6 @@ function render(time) {
     // Request next animation frame
     requestAnimationFrame(render);
 }
-
-// document.getElementById('button_1').addEventListener('click', () => {
-//     camera.position.set( -2.1, -0.4, -3.6);
-//     render(performance.now());
-// });
-
-// canvas.addEventListener("mousedown", (event) => {
-//     console.log(`Canvas three: Mouse down at (${event.clientX}, ${event.clientY})`);
-//     console.log(camera.position);
-//     render(performance.now());
-//     // Handle the mousedown event for canvas 2.
-//   });
-
-
-
 
 
 
