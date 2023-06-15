@@ -2,9 +2,55 @@ import * as THREE from 'three';
 import { PLYLoader } from 'three/addons/loaders/PLYLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RectAreaLightHelper } from 'three/addons/helpers/RectAreaLightHelper.js';
+import { RectAreaLightUniformsLib } from './RectAreaLightUniformsLib.js';
+
+RectAreaLightUniformsLib.init();
 
 let camera1, cameraTarget1, scene1, renderer1, lastFrameTime = 0, numFrames = 10, resizeScale = 0.6;
 const frameInterval = 1000 / 60;
+let lampMesh;
+let rectLight, spotLight;
+
+const targetObject = new THREE.Object3D();
+targetObject.position.set(0, 0, 50); // Set this to your desired z position
+
+
+let x, y, z;
+
+let pointLight = new THREE.PointLight(0xffffff);
+pointLight.castShadow = true;
+pointLight.decay = 1; // higher value for faster falloff
+pointLight.position.set(0, 50, 50);
+
+let time = 0;
+const radius = 10;
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    x = -20;
+    y = Math.sin(time*0.5) * radius + 10;
+    z = Math.cos(time*0.5) * radius + 10;
+
+    // Update the position of the point light and the bulb
+    pointLight.position.set(x - 0.5, y+0.5, z - 1 );
+    rectLight.position.set(x - 0.2 , y , z );
+    spotLight.position.set(x , y , z - 0.2);
+    
+    targetObject.position.set(x+100, y-10, z);
+
+    spotLight.target = targetObject;
+    // bulb.position.set(x, y, z);
+    lampMesh.position.set(x, y, z);
+
+    time += 0.01;
+
+    renderer1.render(scene1, camera1);
+}
+
+
+
 
 function setupCanvas() {
     const canvas = document.getElementById('renderCanvas0');
@@ -16,17 +62,19 @@ function setupCanvas() {
 function setupRenderer(canvas) {
     
     renderer1 = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer1.setPixelRatio( window.devicePixelRatio );
     renderer1.setSize(window.innerWidth * resizeScale, window.innerHeight * resizeScale);
-    renderer1.setClearColor(0xffffff, 1);
+    renderer1.setClearColor(0x634400, 1);
+    renderer1.shadowMap.enabled = true;
 }
 
-window.addEventListener('resize', onWindowResize, false);
+// window.addEventListener('resize', onWindowResize, false);
 
-function onWindowResize(){
-    camera1.aspect = window.innerWidth / window.innerHeight;
-    camera1.updateProjectionMatrix();
-    renderer1.setSize(window.innerWidth * resizeScale, window.innerHeight * resizeScale);
-}
+// function onWindowResize(){
+//     camera1.aspect = window.innerWidth / window.innerHeight;
+//     camera1.updateProjectionMatrix();
+//     renderer1.setSize(window.innerWidth * resizeScale, window.innerHeight * resizeScale);
+// }
 
 function setupScene() {
     const fov = 75;
@@ -39,21 +87,60 @@ function setupScene() {
     camera1.position.set( 3, 0.15, 3 );
     cameraTarget1 = new THREE.Vector3( 0, 0, 0 );
     scene1 = new THREE.Scene();
-    // scene.fog = new THREE.Fog( 0x72645b, 2, 15 );
+    // scene1.fog = new THREE.Fog( 0xcccccc, 10, 15 );
+    scene1.fog = new THREE.Fog( 0x9e6003, 20, 50 );
     // ... add lights and other scene objects ...
 
     const color = 0xffffff;
     const intensity = 0.8;
     const light1 = new THREE.DirectionalLight(color, intensity);
     const light2 = new THREE.DirectionalLight(color, intensity);
-    light1.position.set(0.3, 0, 0);
+    light1.position.set(0.3, 0.3, 0);
     light2.position.set(0, 0, 0.3);
-    scene1.add(light1);
-    scene1.add(light2);
+    // scene1.add(light1);
+    // scene1.add(light2);
+
+    const pointLightHelper = new THREE.PointLightHelper ( pointLight );
+    pointLight.add( pointLightHelper );
+
+    // scene1.add(pointLight);
+    // scene1.add(bulb);
+
+    const width = 2.2;
+    const height = 1.2;
+    rectLight = new THREE.RectAreaLight( 0xffae36, 10,  width, height );
+    rectLight.position.set(0, 0.1, 0);
+    rectLight.lookAt( 1, 0, 0 );
+    rectLight.castShadow = true;
+    rectLight.decay = 2;
+    scene1.add( rectLight );
+    
+    const rectLightHelper = new RectAreaLightHelper( rectLight );
+    rectLight.add( rectLightHelper );
+
+    spotLight = new THREE.SpotLight(0xffae36, 10);
+    spotLight.position.set(0, 10, 0);
+    spotLight.castShadow = true;
+    spotLight.angle = Math.PI / 4; // Spread angle
+    spotLight.penumbra = 0.15; // Controls the softness of the light's edge
+    spotLight.decay = 3; // The amount the light dims along the distance of the light
+    spotLight.distance = 200; // The maximum distance the light shines
+
+
+    spotLight.shadow.mapSize.width = 512; // default is 512
+    spotLight.shadow.mapSize.height = 512; // default is 512
+    spotLight.shadow.camera.near = 0.5; // default
+    spotLight.shadow.camera.far = 500; // default
+
+
+    scene1.add(spotLight);
+    scene1.add(targetObject);
+
+  
 
     // Add an ambient light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1);
-    scene1.add(ambientLight);
+    // const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    // scene1.add(ambientLight);
 
 }
 
@@ -121,35 +208,11 @@ function loadModels() {
     const loader = new PLYLoader();
     const gltfloader = new GLTFLoader();
     
-    // textureLoader.load('./models/img/spritesheet.gif', function(texture) {
-    //     texture.wrapS = THREE.RepeatWrapping;
-    //     texture.wrapT = THREE.RepeatWrapping;
-    //     texture.repeat.set(1 / numFrames, 1);
 
-    //     var material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-    //     var geometry = new THREE.PlaneGeometry(600, 600);
-    //     var mesh = new THREE.Mesh(geometry, material);
-    //     scene.add(mesh);
-
-    //     var currentFrame = 0;
-    //     function animateGIF() {
-    //         requestAnimationFrame(animate);
-    //         renderer.render(scene, camera);
-            
-    //         // Update the spritesheet
-    //         currentFrame = (currentFrame + 1) % numFrames;
-    //         texture.offset.x = currentFrame / numFrames;
-    //     }
-    //     animateGIF();
-    // });
-
-
-
-
-    // Load your models using loaders...
-    // loader.load('./models/ply/ascii/curve.ply', function (geometry) {
+    
+    // loader.load('./models/ply/ascii/scene01.ply', function (geometry) {
     //     geometry.computeVertexNormals();
-
+    
     //     // Create the EdgesGeometry for the model
     //     const edgesGeometry = new THREE.EdgesGeometry(geometry);
     
@@ -161,50 +224,94 @@ function loadModels() {
     
     //     // Scale and rotate the edges mesh to match the original model
     //     edgesMesh.rotation.x = -Math.PI / 2;
-    //     edgesMesh.scale.multiplyScalar(0.01);
-    //     edgesMesh.position.set(0.5, -0.5, 0.5);
+    //     edgesMesh.scale.multiplyScalar(0.25);
+    //     edgesMesh.position.set(5, -.5, 5);
     
     //     // Add the edges mesh to the scene
-    //     scene.add(edgesMesh);
+    //     scene1.add(edgesMesh);
     // });
-
-   
-    /*
-    loader.load('./models/ply/ascii/env_yuan.ply', function (geometry) {
+    
+    loader.load('./models/ply/ascii/lamp.ply', function (geometry) {
         geometry.computeVertexNormals();
     
         // Create the EdgesGeometry for the model
-        const edgesGeometry = new THREE.EdgesGeometry(geometry);
+        // const edgesGeometry = new THREE.EdgesGeometry(geometry);
     
         // Create a LineBasicMaterial for the edges with white color
-        const edgesMaterial = new THREE.LineBasicMaterial({ color: 0xA9A9A9 });
+        const edgesMaterial = new THREE.MeshPhysicalMaterial({ color: 0xA9A9A9 });
     
         // Create a LineSegments mesh using the edges geometry and material
-        const edgesMesh = new THREE.LineSegments(edgesGeometry, edgesMaterial);
+        lampMesh = new THREE.Mesh(geometry, edgesMaterial);
+    
+        // Scale and rotate the edges mesh to match the original model
+        lampMesh.rotation.x = -Math.PI / 2;
+        lampMesh.rotation.z = Math.PI / 2;
+        lampMesh.scale.multiplyScalar(0.25);
+        lampMesh.position.set(0, 0, 0);
+    
+        // Add the edges mesh to the scene
+        scene1.add(lampMesh);
+    });
+
+    // loader.load('./models/ply/ascii/lamp_light.ply', function (geometry) {
+    //     geometry.computeVertexNormals();
+    
+    //     const edgesMaterial = new THREE.MeshPhysicalMaterial({ color: 0xA9A9A9 });
+    //     lampMesh = new THREE.Mesh(geometry, edgesMaterial);
+    
+    //     lampMesh.rotation.x = -Math.PI / 2;
+    //     lampMesh.scale.multiplyScalar(0.25);
+    //     lampMesh.position.set(0, 0, 0);
+    
+    //     scene1.add(lampMesh);
+    
+    //     // Add a light source at the position of the lampMesh
+    //     const pointLight = new THREE.PointLight(0xFFFFFF);
+    //     pointLight.position.set(lampMesh.position.x, lampMesh.position.y, lampMesh.position.z);
+    //     scene1.add(pointLight);
+    // });
+    
+      
+     
+      
+      
+
+    loader.load('./models/ply/ascii/scene01.ply', function (geometry) {
+        geometry.computeVertexNormals();
+    
+        // Create the EdgesGeometry for the model
+        // const edgesGeometry = new THREE.EdgesGeometry(geometry);
+    
+        // Create a LineBasicMaterial for the edges with white color
+        const edgesMaterial = new THREE.MeshPhysicalMaterial({ color: 0xA9A9A9 });
+    
+        // Create a LineSegments mesh using the edges geometry and material
+        const edgesMesh = new THREE.Mesh(geometry, edgesMaterial);
     
         // Scale and rotate the edges mesh to match the original model
         edgesMesh.rotation.x = -Math.PI / 2;
-        edgesMesh.scale.multiplyScalar(0.01);
-        edgesMesh.position.set(0.5, -0.5, 0.5);
+        edgesMesh.scale.multiplyScalar(0.25);
+        edgesMesh.position.set(5, -.5, 5);
+        edgesMesh.receiveShadow = true;
     
         // Add the edges mesh to the scene
-        scene.add(edgesMesh);
+        scene1.add(edgesMesh);
     });
-    */
 
-    //GLTFLoader
-    // gltfloader.load(
-    //     './models/gltf/0606_solid.gltf',
-    //     function (gltf) {
-    //     scene.add(gltf.scene);
-    //     gltf.scene.scale.multiplyScalar(0.1);
-    //     gltf.scene.position.set(0.5, -0.5, 0.5);
-    //     },
-    //     undefined,
-    //     function (error) {
-    //     console.error('An error happened', error);
-    //     }
-    // );
+    /*
+    gltfloader.load(
+        './models/scene/scene01.gltf',
+        function (gltf) {
+        scene1.add(gltf.scene);
+        gltf.scene.scale.multiplyScalar(0.25);
+        gltf.scene.position.set(0, 0, 0);
+        },
+        undefined,
+        function (error) {
+        console.error('An error happened', error);
+        }
+    );
+    */
 
     // gltfloader.load(
     //     './models/gltf/image.gltf',
@@ -219,21 +326,35 @@ function loadModels() {
     //     }
     // );
 
-    gltfloader.load(
-        './models/scene/scene01.gltf',
-        function (gltf) {
-        gltf.scene.scale.multiplyScalar(0.1);
-        gltf.scene.position.set(0.5, -0.5, 0.5);
+    // gltfloader.load(
+    //     './models/scene/scene01.gltf',
+    //     function (gltf) {
+    //     gltf.scene.scale.multiplyScalar(0.1);
+    //     gltf.scene.position.set(0.5, -0.5, 0.5);
         
         
-        //set material
-        var material = new THREE.MeshStandardMaterial({ color: 0xA9A9A9, side: THREE.DoubleSide });
-        gltf.scene.traverse(function(node) {
-            if (node.isMesh) {
-              node.material = material;
-            }
-          });
+    //     //set material
+    //     var material = new THREE.MeshStandardMaterial({ color: 0xA9A9A9, side: THREE.DoubleSide });
+    //     gltf.scene.traverse(function(node) {
+    //         if (node.isMesh) {
+    //           node.material = material;
+    //         }
+    //       });
 
+    //     scene1.add(gltf.scene);
+    //     },
+    //     undefined,
+    //     function (error) {
+    //     console.error('An error happened', error);
+    //     }
+    // );
+
+    
+    gltfloader.load(
+        './models/gltf/Sign.gltf',
+        function (gltf) {
+        gltf.scene.scale.multiplyScalar(1);
+        gltf.scene.position.set(0.5, -0.5, 0.5);
         scene1.add(gltf.scene);
         },
         undefined,
@@ -243,19 +364,6 @@ function loadModels() {
     );
 
     /*
-    gltfloader.load(
-        './models/gltf/skull/scene.gltf',
-        function (gltf) {
-        gltf.scene.scale.multiplyScalar(0.3);
-        gltf.scene.position.set(0.5, -0.5, 0.5);
-        scene.add(gltf.scene);
-        },
-        undefined,
-        function (error) {
-        console.error('An error happened', error);
-        }
-    );
-
     gltfloader.load(
         './models/gltf/test/000.gltf',
         function (gltf) {
@@ -292,7 +400,7 @@ function loadVideo(scene, videoSrc, width, height, posX, posY, posZ, scale) {
 
     // Create a basic material with video texture
     var videoMaterial = new THREE.MeshBasicMaterial({
-        map: videoTexture
+        map: videoTexture, side: THREE.DoubleSide
     });
 
     // Create a plane geometry for the video
@@ -349,6 +457,10 @@ function init() {
     scene1.add(camera1);
     handleResize();
     animateScene1(performance.now());
+    animate();
 }
 
 init();
+
+
+  
