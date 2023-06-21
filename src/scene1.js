@@ -3,32 +3,63 @@ import { PLYLoader } from 'three/addons/loaders/PLYLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RectAreaLightHelper } from 'three/addons/helpers/RectAreaLightHelper.js';
+import Stats from 'three/addons/libs/stats.module.js'
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { RectAreaLightUniformsLib } from './RectAreaLightUniformsLib.js';
+import TWEEN from '@tweenjs/tween.js';
 
 RectAreaLightUniformsLib.init();
 
-let camera1, cameraTarget1, scene1, renderer1, lastFrameTime = 0, numFrames = 10, resizeScale = 0.6;
-const frameInterval = 1000 / 60;
-let lampMesh;
+let camera1, cameraTarget1, scene1, renderer1, lastFrameTime = 0, resizeScale = 0.6;
+let lampMesh = new THREE.Mesh();
 let rectLight, spotLight;
-
-const targetObject = new THREE.Object3D();
-targetObject.position.set(0, 0, 50); // Set this to your desired z position
-
-
+let annotations = {};
+let controls;
 let x, y, z;
-
 let pointLight = new THREE.PointLight(0xffffff);
+
+const frameInterval = 1000 / 60;
+const annotationMarkers = []
+const targetObject = new THREE.Object3D();
+const raycaster = new THREE.Raycaster()
+const sceneMeshes = new Array()
+
+targetObject.position.set(0, 0, 50);
 pointLight.castShadow = true;
 pointLight.decay = 1; // higher value for faster falloff
 pointLight.position.set(0, 50, 50);
 
+const labelRenderer = new CSS2DRenderer();
+labelRenderer.setSize(window.innerWidth, window.innerHeight);
+labelRenderer.domElement.style.position = 'absolute';
+labelRenderer.domElement.style.top = '0px';
+labelRenderer.domElement.style.pointerEvents = 'none';
+document.body.appendChild(labelRenderer.domElement);
+
+const progressBar = document.getElementById('progressBar')
+
 let time = 0;
 const radius = 10;
 
+function init() {
+    const canvas = setupCanvas();
+    setupRenderer(canvas);
+    setupScene();
+    setupOrbitControls();
+    renderer1.domElement.addEventListener('click', onClick, false)
+    loadModels();
+    loadVideo(scene1, './models/video/output.mp4', 1, 17, -16.5, 7.5, 9,0.9);
+    loadVideo(scene1, './models/video/output.mp4', 1, 17, -5.5, 7.5, 9,0.9);
+    loadVideo(scene1, './models/video/output.mp4', 1, 17, 5.5, 7.5, 9,0.9);
+    loadVideo(scene1, './models/video/output.mp4', 1, 17, 17, 7.5, 9,0.9);
+    scene1.add(camera1);
+    handleResize();
+    animateScene1(performance.now());
+    animate();
+}
+
 function animate() {
     requestAnimationFrame(animate);
-
     x = -20;
     y = Math.sin(time*0.5) * radius + 10;
     z = Math.cos(time*0.5) * radius + 10;
@@ -42,14 +73,19 @@ function animate() {
 
     spotLight.target = targetObject;
     // bulb.position.set(x, y, z);
-    lampMesh.position.set(x, y, z);
-
+    if(lampMesh.isMesh){
+        lampMesh.position.set(x, y, z);
+    }
     time += 0.01;
-
     renderer1.render(scene1, camera1);
+
+    const stats = new Stats()
+    document.body.appendChild(stats.dom)
+
+    controls.update();
+    TWEEN.update();
+    stats.update();
 }
-
-
 
 
 function setupCanvas() {
@@ -66,15 +102,8 @@ function setupRenderer(canvas) {
     renderer1.setSize(window.innerWidth * resizeScale, window.innerHeight * resizeScale);
     renderer1.setClearColor(0x634400, 1);
     renderer1.shadowMap.enabled = true;
+    document.body.appendChild(renderer1.domElement)
 }
-
-// window.addEventListener('resize', onWindowResize, false);
-
-// function onWindowResize(){
-//     camera1.aspect = window.innerWidth / window.innerHeight;
-//     camera1.updateProjectionMatrix();
-//     renderer1.setSize(window.innerWidth * resizeScale, window.innerHeight * resizeScale);
-// }
 
 function setupScene() {
     const fov = 75;
@@ -97,21 +126,15 @@ function setupScene() {
     const light2 = new THREE.DirectionalLight(color, intensity);
     light1.position.set(0.3, 0.3, 0);
     light2.position.set(0, 0, 0.3);
-    // scene1.add(light1);
-    // scene1.add(light2);
 
     const pointLightHelper = new THREE.PointLightHelper ( pointLight );
     pointLight.add( pointLightHelper );
-
-    // scene1.add(pointLight);
-    // scene1.add(bulb);
 
     const width = 2.2;
     const height = 1.2;
     rectLight = new THREE.RectAreaLight( 0xffae36, 10,  width, height );
     rectLight.position.set(0, 0.1, 0);
     rectLight.lookAt( 1, 0, 0 );
-    rectLight.castShadow = true;
     rectLight.decay = 2;
     scene1.add( rectLight );
     
@@ -125,22 +148,13 @@ function setupScene() {
     spotLight.penumbra = 0.15; // Controls the softness of the light's edge
     spotLight.decay = 3; // The amount the light dims along the distance of the light
     spotLight.distance = 200; // The maximum distance the light shines
-
-
     spotLight.shadow.mapSize.width = 512; // default is 512
     spotLight.shadow.mapSize.height = 512; // default is 512
     spotLight.shadow.camera.near = 0.5; // default
     spotLight.shadow.camera.far = 500; // default
 
-
     scene1.add(spotLight);
     scene1.add(targetObject);
-
-  
-
-    // Add an ambient light
-    // const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    // scene1.add(ambientLight);
 
 }
 
@@ -148,7 +162,9 @@ function setupOrbitControls() {
     let orbit = new THREE.Object3D();
     orbit.add(camera1);
     scene1.add(orbit);
-    let controls = new OrbitControls(camera1, renderer1.domElement);
+    controls = new OrbitControls(camera1, renderer1.domElement);
+    controls.dampingFactor = 0.2
+    controls.enableDamping = true
     controls.mouseButtons = {
         LEFT: THREE.MOUSE.PAN,
         MIDDLE: THREE.MOUSE.DOLLY,
@@ -209,28 +225,6 @@ function loadModels() {
     const gltfloader = new GLTFLoader();
     
 
-    
-    // loader.load('./models/ply/ascii/scene01.ply', function (geometry) {
-    //     geometry.computeVertexNormals();
-    
-    //     // Create the EdgesGeometry for the model
-    //     const edgesGeometry = new THREE.EdgesGeometry(geometry);
-    
-    //     // Create a LineBasicMaterial for the edges with white color
-    //     const edgesMaterial = new THREE.LineBasicMaterial({ color: 0xA9A9A9 });
-    
-    //     // Create a LineSegments mesh using the edges geometry and material
-    //     const edgesMesh = new THREE.LineSegments(edgesGeometry, edgesMaterial);
-    
-    //     // Scale and rotate the edges mesh to match the original model
-    //     edgesMesh.rotation.x = -Math.PI / 2;
-    //     edgesMesh.scale.multiplyScalar(0.25);
-    //     edgesMesh.position.set(5, -.5, 5);
-    
-    //     // Add the edges mesh to the scene
-    //     scene1.add(edgesMesh);
-    // });
-    
     loader.load('./models/ply/ascii/lamp.ply', function (geometry) {
         geometry.computeVertexNormals();
     
@@ -253,28 +247,6 @@ function loadModels() {
         scene1.add(lampMesh);
     });
 
-    // loader.load('./models/ply/ascii/lamp_light.ply', function (geometry) {
-    //     geometry.computeVertexNormals();
-    
-    //     const edgesMaterial = new THREE.MeshPhysicalMaterial({ color: 0xA9A9A9 });
-    //     lampMesh = new THREE.Mesh(geometry, edgesMaterial);
-    
-    //     lampMesh.rotation.x = -Math.PI / 2;
-    //     lampMesh.scale.multiplyScalar(0.25);
-    //     lampMesh.position.set(0, 0, 0);
-    
-    //     scene1.add(lampMesh);
-    
-    //     // Add a light source at the position of the lampMesh
-    //     const pointLight = new THREE.PointLight(0xFFFFFF);
-    //     pointLight.position.set(lampMesh.position.x, lampMesh.position.y, lampMesh.position.z);
-    //     scene1.add(pointLight);
-    // });
-    
-      
-     
-      
-      
 
     loader.load('./models/ply/ascii/scene01.ply', function (geometry) {
         geometry.computeVertexNormals();
@@ -296,60 +268,75 @@ function loadModels() {
     
         // Add the edges mesh to the scene
         scene1.add(edgesMesh);
-    });
+        sceneMeshes.push(edgesMesh)
 
-    /*
-    gltfloader.load(
-        './models/scene/scene01.gltf',
-        function (gltf) {
-        scene1.add(gltf.scene);
-        gltf.scene.scale.multiplyScalar(0.25);
-        gltf.scene.position.set(0, 0, 0);
+
+        //camera view switching
+        const annotationsDownload = new XMLHttpRequest()
+        annotationsDownload.open('GET', 'annotation.json')
+        annotationsDownload.onreadystatechange = function () {
+            if (annotationsDownload.readyState === 4) {
+                annotations = JSON.parse(annotationsDownload.responseText)
+
+                const annotationsPanel = document.getElementById('annotationsPanel')
+                const ul = document.createElement('ul')
+                const ulElem = annotationsPanel.appendChild(ul)
+                Object.keys(annotations).forEach((a) => {
+                    const li = document.createElement('li')
+                    const liElem = ulElem.appendChild(li)
+                    const button = document.createElement('button')
+                    button.innerHTML = a + ' : ' + annotations[a].title
+                    button.className = 'annotationButton'
+                    button.addEventListener('click', function () {
+                        gotoAnnotation(annotations[a])
+                    })
+                    liElem.appendChild(button)
+
+                    const annotationSpriteMaterial = new THREE.SpriteMaterial({
+                        depthTest: false,
+                        depthWrite: false,
+                        sizeAttenuation: false,
+                    })
+                    const annotationSprite = new THREE.Sprite(annotationSpriteMaterial)
+                    annotationSprite.scale.set(0.066, 0.066, 0.066)
+                    annotationSprite.position.copy(annotations[a].lookAt)
+                    annotationSprite.userData.id = a
+                    scene1.add(annotationSprite)
+                    annotationMarkers.push(annotationSprite)
+
+                    const annotationDiv = document.createElement('div')
+                    annotationDiv.className = 'annotationLabel'
+                    annotationDiv.innerHTML = a
+                    const annotationLabel = new CSS2DObject(annotationDiv)
+                    annotationLabel.position.copy(annotations[a].lookAt)
+                    scene1.add(annotationLabel)
+
+                    if (annotations[a].description) {
+                        const annotationDescriptionDiv = document.createElement('div')
+                        annotationDescriptionDiv.className = 'annotationDescription'
+                        annotationDescriptionDiv.innerHTML = annotations[a].description
+                        annotationDiv.appendChild(annotationDescriptionDiv)
+                        annotations[a].descriptionDomElement = annotationDescriptionDiv
+                    }
+                })
+                progressBar.style.display = 'none'
+            }
+            
+        }
+        annotationsDownload.send()
         },
-        undefined,
-        function (error) {
-        console.error('An error happened', error);
+        (xhr) => {
+            if (xhr.lengthComputable) {
+                let percentComplete = (xhr.loaded / xhr.total) * 100
+                progressBar.value = percentComplete
+                progressBar.style.display = 'block'
+            }
+        },
+        (error) => {
+            console.log('An error happened')
         }
     );
-    */
 
-    // gltfloader.load(
-    //     './models/gltf/image.gltf',
-    //     function (gltf) {
-    //     gltf.scene.scale.multiplyScalar(0.1);
-    //     gltf.scene.position.set(0.5, -0.5, 0.5);
-    //     scene.add(gltf.scene);
-    //     },
-    //     undefined,
-    //     function (error) {
-    //     console.error('An error happened', error);
-    //     }
-    // );
-
-    // gltfloader.load(
-    //     './models/scene/scene01.gltf',
-    //     function (gltf) {
-    //     gltf.scene.scale.multiplyScalar(0.1);
-    //     gltf.scene.position.set(0.5, -0.5, 0.5);
-        
-        
-    //     //set material
-    //     var material = new THREE.MeshStandardMaterial({ color: 0xA9A9A9, side: THREE.DoubleSide });
-    //     gltf.scene.traverse(function(node) {
-    //         if (node.isMesh) {
-    //           node.material = material;
-    //         }
-    //       });
-
-    //     scene1.add(gltf.scene);
-    //     },
-    //     undefined,
-    //     function (error) {
-    //     console.error('An error happened', error);
-    //     }
-    // );
-
-    
     gltfloader.load(
         './models/gltf/Sign.gltf',
         function (gltf) {
@@ -362,20 +349,24 @@ function loadModels() {
         console.error('An error happened', error);
         }
     );
+}
 
-    /*
-    gltfloader.load(
-        './models/gltf/test/000.gltf',
-        function (gltf) {
-        gltf.scene.scale.multiplyScalar(0.3);
-        gltf.scene.position.set(0.5, -0.5, 0.5);
-        scene.add(gltf.scene);
+
+function onClick(event) {
+    raycaster.setFromCamera(
+        {
+            x: (event.clientX / renderer1.domElement.clientWidth) * 2 - 1,
+            y: -(event.clientY / renderer1.domElement.clientHeight) * 2 + 1,
         },
-        undefined,
-        function (error) {
-        console.error('An error happened', error);
+        camera1
+    )
+
+    const intersects = raycaster.intersectObjects(annotationMarkers, true)
+    if (intersects.length > 0) {
+        if (intersects[0].object.userData && intersects[0].object.userData.id) {
+            gotoAnnotation(annotations[intersects[0].object.userData.id])
         }
-    );*/
+    }
 }
 
 function loadVideo(scene, videoSrc, width, height, posX, posY, posZ, scale) {
@@ -419,12 +410,13 @@ function loadVideo(scene, videoSrc, width, height, posX, posY, posZ, scale) {
     });
 }
 
-
 function handleResize() {
     window.addEventListener('resize', () => {
         camera1.aspect = window.innerWidth / window.innerHeight;
         camera1.updateProjectionMatrix();
         renderer1.setSize(window.innerWidth * resizeScale, window.innerHeight * resizeScale);
+        labelRenderer.setSize(window.innerWidth, window.innerHeight);
+
     });
 }
 
@@ -433,31 +425,47 @@ function animateScene1(time) {
     const elapsedTime = time - lastFrameTime;
     if (elapsedTime >= frameInterval) {
         renderer1.render(scene1, camera1);
+        labelRenderer.render(scene1, camera1);
         lastFrameTime = time;
     }
+    // console.log('camera target:', camera1.getWorldDirection(cameraTarget1));
+    console.log('camera pos:',camera1.position);
     requestAnimationFrame(animateScene1);
 }
 
-function op_change(mesh){
-    var scrollPos = window.scrollY;
-    mesh.emissiveIntensity  = scrollPos%1000 / 1000;
-}
+function gotoAnnotation(a) {
+    new TWEEN.Tween(camera1.position)
+        .to(
+            {
+                x: a.camPos.x,
+                y: a.camPos.y,
+                z: a.camPos.z,
+            },
+            500
+        )
+        .easing(TWEEN.Easing.Cubic.Out)
+        .start()
 
-function init() {
-    const canvas = setupCanvas();
-    setupRenderer(canvas);
-    setupScene();
-    setupOrbitControls();
-    loadModels();
-    // loadTextures();
-    loadVideo(scene1, './models/video/output.mp4', 1, 17, -16.5, 7.5, 9,0.9);
-    loadVideo(scene1, './models/video/output.mp4', 1, 17, -5.5, 7.5, 9,0.9);
-    loadVideo(scene1, './models/video/output.mp4', 1, 17, 5.5, 7.5, 9,0.9);
-    loadVideo(scene1, './models/video/output.mp4', 1, 17, 17, 7.5, 9,0.9);
-    scene1.add(camera1);
-    handleResize();
-    animateScene1(performance.now());
-    animate();
+    new TWEEN.Tween(controls.target)
+        .to(
+            {
+                x: a.lookAt.x,
+                y: a.lookAt.y,
+                z: a.lookAt.z,
+            },
+            500
+        )
+        .easing(TWEEN.Easing.Cubic.Out)
+        .start()
+
+    Object.keys(annotations).forEach((annotation) => {
+        if (annotations[annotation].descriptionDomElement) {
+            annotations[annotation].descriptionDomElement.style.display = 'none'
+        }
+    })
+    if (a.descriptionDomElement) {
+        a.descriptionDomElement.style.display = 'block'
+    }
 }
 
 init();
