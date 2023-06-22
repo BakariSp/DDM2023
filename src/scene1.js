@@ -29,6 +29,7 @@ pointLight.castShadow = true;
 pointLight.decay = 1; // higher value for faster falloff
 pointLight.position.set(0, 50, 50);
 
+
 const labelRenderer = new CSS2DRenderer();
 labelRenderer.setSize(window.innerWidth, window.innerHeight);
 labelRenderer.domElement.style.position = 'absolute';
@@ -36,7 +37,7 @@ labelRenderer.domElement.style.top = '0px';
 labelRenderer.domElement.style.pointerEvents = 'none';
 document.body.appendChild(labelRenderer.domElement);
 
-const progressBar = document.getElementById('progressBar')
+// const progressBar = document.getElementById('progressBar')
 
 let time = 0;
 const radius = 10;
@@ -79,30 +80,33 @@ function animate() {
     time += 0.01;
     renderer1.render(scene1, camera1);
 
-    const stats = new Stats()
-    document.body.appendChild(stats.dom)
+    // const stats = new Stats()
+    // document.body.appendChild(stats.dom)
 
     controls.update();
     TWEEN.update();
-    stats.update();
+    // stats.update();
 }
 
 
 function setupCanvas() {
     const canvas = document.getElementById('renderCanvas0');
-    document.body.style.margin = '0';
+    // document.body.style.margin = '0';
     document.body.style.overflow = 'hidden';
     return canvas;
 }
 
 function setupRenderer(canvas) {
-    
+    const canvasContainer = document.getElementById('canvas-container');
+    const width = canvasContainer.offsetWidth;
+    const height = canvasContainer.offsetHeight;
+  
     renderer1 = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer1.setPixelRatio( window.devicePixelRatio );
-    renderer1.setSize(window.innerWidth * resizeScale, window.innerHeight * resizeScale);
+    renderer1.setPixelRatio(window.devicePixelRatio);
+    renderer1.setSize(width, height);
     renderer1.setClearColor(0x634400, 1);
     renderer1.shadowMap.enabled = true;
-    document.body.appendChild(renderer1.domElement)
+    canvasContainer.appendChild(renderer1.domElement);
 }
 
 function setupScene() {
@@ -248,6 +252,7 @@ function loadModels() {
     });
 
 
+    /*
     loader.load('./models/ply/ascii/scene01.ply', function (geometry) {
         geometry.computeVertexNormals();
     
@@ -335,7 +340,73 @@ function loadModels() {
         (error) => {
             console.log('An error happened')
         }
-    );
+    );*/
+
+    loader.load('./models/ply/ascii/scene01.ply', function (geometry) {
+        geometry.computeVertexNormals();
+    
+        // Create the EdgesGeometry for the model
+        // const edgesGeometry = new THREE.EdgesGeometry(geometry);
+    
+        // Create a LineBasicMaterial for the edges with white color
+        const edgesMaterial = new THREE.MeshPhysicalMaterial({ color: 0xA9A9A9 });
+    
+        // Create a LineSegments mesh using the edges geometry and material
+        const edgesMesh = new THREE.Mesh(geometry, edgesMaterial);
+    
+        // Scale and rotate the edges mesh to match the original model
+        edgesMesh.rotation.x = -Math.PI / 2;
+        edgesMesh.scale.multiplyScalar(0.25);
+        edgesMesh.position.set(5, -.5, 5);
+        edgesMesh.receiveShadow = true;
+    
+        // Add the edges mesh to the scene
+        scene1.add(edgesMesh);
+        sceneMeshes.push(edgesMesh);
+    
+        const annotationsDownload = new XMLHttpRequest();
+        annotationsDownload.open('GET', 'annotation.json');
+        annotationsDownload.onreadystatechange = function () {
+            if (annotationsDownload.readyState === 4) {
+                const annotations = JSON.parse(annotationsDownload.responseText);
+                const view1 = document.getElementById('view1');
+                const view2 = document.getElementById('view2');
+                const view3 = document.getElementById('view3');
+                const view4 = document.getElementById('view4');
+
+                view1.addEventListener('click', function () {
+                    gotoAnnotation(annotations[0]);
+                });
+
+                view2.addEventListener('click', function () {
+                    gotoAnnotation(annotations[1]);
+                });
+
+                view3.addEventListener('click', function () {
+                    gotoAnnotation(annotations[2]);
+                });
+
+                view4.addEventListener('click', function () {
+                    gotoAnnotation(annotations[3]);
+                });
+
+                // progressBar.style.display = 'none';
+            }
+        };
+        annotationsDownload.send();
+        // (xhr) => {
+        //     if (xhr.lengthComputable) {
+        //         let percentComplete = (xhr.loaded / xhr.total) * 100;
+        //         progressBar.value = percentComplete;
+        //         progressBar.style.display = 'block';
+        //     }
+        // },
+        (error) => {
+            console.log('An error happened');
+        }
+        
+    });
+    
 
     gltfloader.load(
         './models/gltf/Sign.gltf',
@@ -414,8 +485,10 @@ function handleResize() {
     window.addEventListener('resize', () => {
         camera1.aspect = window.innerWidth / window.innerHeight;
         camera1.updateProjectionMatrix();
-        renderer1.setSize(window.innerWidth * resizeScale, window.innerHeight * resizeScale);
-        labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        const width = canvasContainer.offsetWidth;
+        const height = canvasContainer.offsetHeight;
+        renderer1.setSize(width, height);
+        // labelRenderer.setSize(window.innerWidth, window.innerHeight);
 
     });
 }
@@ -425,11 +498,11 @@ function animateScene1(time) {
     const elapsedTime = time - lastFrameTime;
     if (elapsedTime >= frameInterval) {
         renderer1.render(scene1, camera1);
-        labelRenderer.render(scene1, camera1);
+        // labelRenderer.render(scene1, camera1);
         lastFrameTime = time;
     }
     // console.log('camera target:', camera1.getWorldDirection(cameraTarget1));
-    console.log('camera pos:',camera1.position);
+    // console.log('camera pos:',camera1.position);
     requestAnimationFrame(animateScene1);
 }
 

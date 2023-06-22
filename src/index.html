@@ -8,21 +8,64 @@
 		<script async src="https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js"></script>
 	</head>
 	<body>
-		<progress value="0" max="100" id="progressBar"></progress>
-		<div id="canvas-container">
-			<canvas id="renderCanvas0"></canvas>
+		<div id="title">
+            <h1>DEMO DWELLING MACHINES</h1>
+        </div>
+		<!-- <progress value="0" max="100" id="progressBar"></progress> -->
+		<!-- <div id="canvas-container">
 			<canvas id="renderCanvas1"></canvas>
-		</div>
-		<div id="annotationsPanel"></div>
-		
-		<!-- Create a canvas to be overlaid on top of the three.js canvas -->
+		</div> -->
 		
 		
-		
+		<div class="column side">
+            <h2>SCENE1-LIGHT</h2>
+            <div class="text-align">
+                <div id="text">
+					<p>Scene is like a giant stage set. Some backdrop elements are fixed on a giant billboard, others can be slid in out from drawers in a giant filing cabinet. 
+						<a id="view1">Giant moving lights</a> (artificial suns) of different scales and on different kinds of rail. 
+						<a id="view2">Mechanical foliage</a>, devices which look like radically abstract mechanized hedges. can be adjusted to let more or less light pass through. 
+						Although a very industrial <a id="view3">aesthetic</a>, the feeling is luxurious and opulent, a mix of raw infrastructure/machinery/metal and <a id="view4">fancy materials</a> like marble.
+					</p>
+				</div>
+                <div id="next">
+                    <a href="scene2.html">NEXT SCENE</a>
+                </div>
+            </div>
+        </div>
+        <div class="column main">
+			<div id="canvas-container">
+				<canvas id="renderCanvas0"></canvas>
+			</div>
+            <section>
+                <div class="section-item">
+                    <div class="a">SCENE1</div>
+                    <div class="a">SCENE1</div>
+                    <a href="index.html">LIGHT</a>
+                </div>
+                <div class="section-item">
+                    <div class="a">SCENE2</div>
+                    <div class="a">SCENE2</div>
+                    <a href="scene2.html">SPACE</a>
+                </div>
+                <div class="section-item">
+                    <div class="a">SCENE3</div>
+                    <div class="a">SCENE3</div>
+                    <a href="">GARDEN</a>
+                </div>
+                <div class="section-item">
+                    <div class="a">SCENE4</div>
+                    <div class="a">SCENE4</div>
+                    <a href="">TBA</a>
+                </div>
+                <div class="section-item">
+                    <div class="a">SCENE5</div>
+                    <div class="a">SCENE5</div>
+                    <a href="">TBA</a>
+                </div>
+            </section>
+        </div>
 		
 		<!-- Import maps polyfill -->
-		<!-- Remove this when import maps will be widely supported -->
-		<!-- <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script> -->
 		<script type="importmap">
 			{
 				"imports": {
@@ -34,8 +77,6 @@
 			}
 		</script>
 		<script type="module" src="scene1.js"></script>
-		<!-- <script type="module" src="scene2.js"></script> -->
-		<!-- <script src="interaction.js"></script> -->
 
 	</body>
 </html>
