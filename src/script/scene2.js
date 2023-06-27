@@ -119,7 +119,7 @@ function setupScene() {
 }
 
 function setupLights() {
-    const light = new THREE.AmbientLight( 0x404040, 2 ); // soft white light
+    const light = new THREE.AmbientLight( 0xffffff, 2 ); // soft white light
     scene1.add( light );
 
     const Hemilight = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
@@ -193,13 +193,9 @@ function loadModels() {
     const gltfloader = new GLTFLoader();
 
 
-    gltfloader.load('./models/scene/0627TEST/0627.gltf', function (gltf) {
-        gltf.scene.traverse(function (child) {
-            if (child.isMesh) {
-              child.material = new THREE.LineBasicMaterial({ color: 0x000000 });
-            }
-          });
-        gltf.scene.scale.multiplyScalar(1);
+    gltfloader.load('./models/scene/Image World Simple_2/Image World Simple_2.gltf', function (gltf) {
+
+        gltf.scene.scale.multiplyScalar(0.1);
         gltf.scene.position.set(0.5, -0.5, 0.5);
         scene1.add(gltf.scene);
     

@@ -365,7 +365,7 @@ function loadModels() {
         sceneMeshes.push(edgesMesh);
     
         const annotationsDownload = new XMLHttpRequest();
-        annotationsDownload.open('GET', 'annotation.json');
+        annotationsDownload.open('GET', 'json/annotation1.json');
         annotationsDownload.onreadystatechange = function () {
             if (annotationsDownload.readyState === 4) {
                 const annotations = JSON.parse(annotationsDownload.responseText);
