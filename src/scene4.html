@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>DDM</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="style4.css">
+		<script async src="https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js"></script>
+	</head>
+	<body>
+		<div id="title">
+            <h1>DEMO DWELLING MACHINES</h1>
+        </div>
+		<!-- <progress value="0" max="100" id="progressBar"></progress> -->
+		<!-- <div id="canvas-container">
+			<canvas id="renderCanvas1"></canvas>
+		</div> -->
+		
+		
+		<div class="column side">
+            <h2>SCENE1-LIGHT</h2>
+            <div class="text-align">
+                <div id="text">
+					<p>Scene is like a giant stage set. Some backdrop elements are fixed on a giant billboard, others can be slid in out from drawers in a giant filing cabinet. 
+						<a id="view1">Giant moving lights</a> (artificial suns) of different scales and on different kinds of rail. 
+						<a id="view2">Mechanical foliage</a>, devices which look like radically abstract mechanized hedges. can be adjusted to let more or less light pass through. 
+						Although a very industrial <a id="view3">aesthetic</a>, the feeling is luxurious and opulent, a mix of raw infrastructure/machinery/metal and <a id="view4">fancy materials</a> like marble.
+					</p>
+				</div>
+                <div id="next">
+                    <a href="scene3.html">NEXT SCENE</a>
+                </div>
+            </div>
+        </div>
+        <div class="column main">
+			<div id="canvas-container">
+				<canvas id="renderCanvas0"></canvas>
+			</div>
+            <section>
+                <div class="section-item">
+                    <div class="a">SCENE1</div>
+                    <div class="a">SCENE1</div>
+                    <a href="index.html">LIGHT</a>
+                </div>
+                <div class="section-item">
+                    <div class="a">SCENE2</div>
+                    <div class="a">SCENE2</div>
+                    <a href="scene2.html">SPACE</a>
+                </div>
+                <div class="section-item">
+                    <div class="a">SCENE3</div>
+                    <div class="a">SCENE3</div>
+                    <a href="scene4.html">GARDEN</a>
+                </div>
+                <div class="section-item">
+                    <div class="a">SCENE4</div>
+                    <div class="a">SCENE4</div>
+                    <a href="scene4.html">TBA</a>
+                </div>
+                <div class="section-item">
+                    <div class="a">SCENE5</div>
+                    <div class="a">SCENE5</div>
+                    <a href="">TBA</a>
+                </div>
+            </section>
+        </div>
+		
+		<!-- Import maps polyfill -->
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "../build/three.module.js",
+					"gifler": "../node_modules/gifler/gifler.js",
+					"three/addons/": "./jsm/",
+					"@tweenjs/tween.js": "https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.esm.js"
+				}
+			}
+		</script>
+		<script type="module" src="scene4.js"></script>
+
+	</body>
+</html>

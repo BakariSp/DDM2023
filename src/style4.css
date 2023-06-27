@@ -1,0 +1,291 @@
+* {
+    color: rgb(20, 6, 46);
+}
+
+body {
+    /* display: flex; */
+    /* justify-content: center; */
+    /* align-items: center; */
+    /* height: 100vh; */
+    margin: 0;
+    width: 100%;
+    height: 92vh;
+    background-color: #e6dfcc;
+    margin-top: 8vh;
+    /* You can change this as per your requirement */
+    /* overflow: auto; */
+}
+
+p {
+    font-size: 18px;
+    text-align: justify;
+    line-height: 135%;
+}
+
+#title h1 {
+    margin-left: 5vw;
+}
+
+/* 创建2个不相等的列 */
+.column {
+    float: left;
+    margin-top: 10vh;
+    /* margin-left: 3vw; */
+    /* width: 45%; */
+}
+
+.column.side {
+    width: 35%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 5vw;
+}
+
+.column.main {
+    width: 55%;
+}
+
+/* 响应式布局 - 小于 600 px 时改为上下布局 */
+@media screen and (max-width: 600px) {
+    .column {
+        width: 100%;
+    }
+}
+
+/* .column.side{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 5vw;
+  } */
+.text-align {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+.text-align div {
+    margin-right: 4vw;
+}
+
+#text {
+    width: 30vw;
+}
+
+#next {
+    font-size: large;
+    font-weight: bolder;
+    margin-top: 3vh;
+}
+
+#next a {
+    color: rgb(20, 6, 46);
+}
+
+#canvas-container {
+    width: 55vw;
+    height: 55vh;
+    /* border: 1px solid rgb(255, 255, 255); */
+    z-index: 1;
+}
+
+#switch-scene {
+    margin-top: 5vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    position: relative;
+    /* z-index: 2; */
+}
+
+#switch-scene a {
+    /* margin-left: 1.5vw; */
+    font-size: larger;
+}
+
+a,
+span {
+    text-decoration: none;
+    color:#002fa7;
+    
+}
+
+
+a:link {
+    color: red;
+}
+
+/* visited link */
+a:visited {
+    color: black;
+}
+
+/* mouse over link */
+a:hover {
+    color: hotpink;
+    cursor: pointer;
+}
+
+/* selected link */
+a:active {
+    color: blue;
+}
+
+#text a {
+    background-color: yellow;
+    font-weight: bolder;
+}
+
+#renderCanvas0 {
+    /* width: 80%;  */
+    /* height: 80vh;  */
+    border: 1px solid rgb(223, 223, 223);
+    margin: none;
+    overflow: hidden;
+}
+
+.text {
+    font-size: 6vw;
+    word-spacing: 0.2em;
+    margin: 0 auto;
+    background: #fff;
+    padding: 1em;
+    border-bottom: 1vw solid #0e6dad;
+    position: relative;
+    line-height: 1.2em;
+}
+
+section {
+    margin-top: 5vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+section .section-item {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: filter 0.5s, transform 0.5s;
+}
+
+section .section-item .a {
+    font-size: larger;
+    font-weight: bold;
+    top: 0;
+    opacity: 1;
+    transition: top 0.5s, opacity 0.5s;
+}
+
+/* cut text */
+section .section-item .a:nth-child(1) {
+    position: absolute;
+    clip-path: polygon(0% 0%, 100% 0%, 100% 51%, 0% 51%);
+}
+
+section .section-item .a:nth-child(2) {
+    position: relative;
+    clip-path: polygon(0% 50%, 100% 50%, 100% 100%, 0% 100%);
+}
+
+/* begin effect */
+section:hover .section-item {
+    filter: blur(10px);
+    transform: scale(0.8);
+    transition: filter 0.5s, transform 0.5s;
+}
+
+/* cancel effect */
+section .section-item:hover {
+    filter: blur(0px);
+    transform: scale(1.1);
+    transition: filter 0.5s, transform 0.5s;
+}
+
+/* moving & fading */
+section .section-item:hover .a:nth-child(1) {
+    top: -20px;
+    opacity: 0.5;
+    transition: top 0.5s, opacity 0.5s;
+}
+
+section .section-item:hover .a:nth-child(2) {
+    top: 20px;
+    opacity: 0.5;
+    transition: top 0.5s, opacity 0.5s;
+}
+
+/* a elements */
+section .section-item a {
+    position: absolute;
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+section .section-item:hover a {
+    opacity: 1;
+    transition: opacity 0.5s;
+}
+
+
+
+#progressBar {
+    width: 500px;
+    height: 24px;
+    position: absolute;
+    left: 50%;
+    top: 10px;
+    margin-left: -250px;
+}
+
+#annotationsPanel {
+    position: absolute;
+    top: 60px;
+    left: 4px;
+    width: auto;
+    height: auto;
+    color: white;
+    font-family: monospace;
+}
+
+#annotationsPanel ul {
+    padding: 0;
+    list-style-type: none;
+}
+
+.annotationLabel {
+    color: #ffffff;
+    font-family: monospace;
+    pointer-events: none;
+    font-size: 17px;
+}
+
+.annotationDescription {
+    color: #ffffff;
+    font-family: monospace;
+    pointer-events: none;
+    font-size: 14px;
+    position: absolute;
+    left: 25px;
+    padding: 1em;
+    width: 200px;
+    background: rgba(0, 0, 0, 0.66);
+    border-radius: 0.5em;
+    transition: opacity 0.5s;
+    display: none;
+}
+
+.annotationButton {
+    width: 160px;
+    height: 70px;
+    font-family: monospace;
+    background-color: rgba(0.25, 0.25, 0.25, 0.5);
+    color: white;
+    text-align: left;
+    padding-left: 20px;
+    cursor: pointer;
+}
