@@ -17,6 +17,7 @@ let annotations = {};
 let controls;
 let x, y, z;
 let pointLight = new THREE.PointLight(0xffffff);
+let i=0;
 
 const frameInterval = 1000 / 60;
 const annotationMarkers = []
@@ -49,6 +50,7 @@ function init() {
     setupOrbitControls();
     renderer1.domElement.addEventListener('click', onClick, false)
     loadModels();
+    changeScene();
     loadVideo(scene1, './models/video/output.mp4', 1, 17, -16.5, 7.5, 9,0.9);
     loadVideo(scene1, './models/video/output.mp4', 1, 17, -5.5, 7.5, 9,0.9);
     loadVideo(scene1, './models/video/output.mp4', 1, 17, 5.5, 7.5, 9,0.9);
@@ -342,6 +344,7 @@ function loadModels() {
         }
     );*/
 
+    /*
     loader.load('./models/ply/ascii/scene01.ply', function (geometry) {
         geometry.computeVertexNormals();
     
@@ -405,8 +408,43 @@ function loadModels() {
             console.log('An error happened');
         }
         
-    });
+    });*/
     
+
+    loader.load('./models/ply/ascii/scene01.ply', function (geometry) {
+        geometry.computeVertexNormals();
+    
+        // Create the EdgesGeometry for the model
+        // const edgesGeometry = new THREE.EdgesGeometry(geometry);
+    
+        // Create a LineBasicMaterial for the edges with white color
+        const edgesMaterial = new THREE.MeshPhysicalMaterial({ color: 0xA9A9A9 });
+    
+        // Create a LineSegments mesh using the edges geometry and material
+        const edgesMesh = new THREE.Mesh(geometry, edgesMaterial);
+    
+        // Scale and rotate the edges mesh to match the original model
+        edgesMesh.rotation.x = -Math.PI / 2;
+        edgesMesh.scale.multiplyScalar(0.25);
+        edgesMesh.position.set(5, -.5, 5);
+        edgesMesh.receiveShadow = true;
+    
+        // Add the edges mesh to the scene
+        scene1.add(edgesMesh);
+        sceneMeshes.push(edgesMesh);
+    
+        // (xhr) => {
+        //     if (xhr.lengthComputable) {
+        //         let percentComplete = (xhr.loaded / xhr.total) * 100;
+        //         progressBar.value = percentComplete;
+        //         progressBar.style.display = 'block';
+        //     }
+        // },
+        (error) => {
+            console.log('An error happened');
+        }
+        
+    });
 
     gltfloader.load(
         './models/gltf/Sign.gltf',
@@ -422,6 +460,54 @@ function loadModels() {
     );
 }
 
+function changeScene(){
+    const annotationsDownload = new XMLHttpRequest();
+    annotationsDownload.open('GET', 'json/annotation1.json');
+    annotationsDownload.onreadystatechange = function () {
+        if (annotationsDownload.readyState === 4) {
+            const annotations = JSON.parse(annotationsDownload.responseText);
+            const view1 = document.getElementById('view1');
+            const view2 = document.getElementById('view2');
+            const view3 = document.getElementById('view3');
+            const view4 = document.getElementById('view4');
+
+            var timer = window.setInterval( 
+                function nextScene() { 
+                    if (i < 4){
+                        gotoAnnotation(annotations[i])
+                        i ++;
+                    } else {
+                        i = 0;
+                    }
+                }, 5000)
+
+            view1.addEventListener('click', function () {
+                gotoAnnotation(annotations[0]);
+                window.clearInterval(timer);
+            });
+
+            view2.addEventListener('click', function () {
+                gotoAnnotation(annotations[1]);
+                window.clearInterval(timer);
+            });
+
+            view3.addEventListener('click', function () {
+                gotoAnnotation(annotations[2]);
+                window.clearInterval(timer);
+            });
+
+            view4.addEventListener('click', function () {
+                gotoAnnotation(annotations[3]);
+                window.clearInterval(timer);
+            });
+
+            
+            
+            // progressBar.style.display = 'none';
+        }
+    };
+    annotationsDownload.send();
+}
 
 function onClick(event) {
     raycaster.setFromCamera(
@@ -438,6 +524,10 @@ function onClick(event) {
             gotoAnnotation(annotations[intersects[0].object.userData.id])
         }
     }
+}
+
+function switchScene() {
+    
 }
 
 function loadVideo(scene, videoSrc, width, height, posX, posY, posZ, scale) {
