@@ -117,7 +117,7 @@ function setupScene() {
     camera1 = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
     // camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 1, 15 );
-    camera1.position.set( 3, 0.15, 3 );
+    camera1.position.set( 16, 10, -9 );
     cameraTarget1 = new THREE.Vector3( 0, 0, 0 );
     scene1 = new THREE.Scene();
     // scene1.fog = new THREE.Fog( 0xcccccc, 10, 15 );

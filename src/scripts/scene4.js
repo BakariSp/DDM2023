@@ -110,7 +110,7 @@ function setupScene() {
     camera1 = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
     // camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 1, 15 );
-    camera1.position.set( 3, 0.15, 3 );
+    camera1.position.set( -0.11, 3.29, 5.47 );
     cameraTarget1 = new THREE.Vector3( 0, 0, 0 );
     scene1 = new THREE.Scene();
     scene1.fog = new THREE.Fog( 0xffffff, 20, 100 );
@@ -136,6 +136,7 @@ function setupOrbitControls() {
         MIDDLE: THREE.MOUSE.DOLLY,
         RIGHT: THREE.MOUSE.ROTATE
     };
+    
 }
 
 function loadTextures(){
@@ -202,7 +203,7 @@ function loadModels() {
         scene1.add(gltf.scene);
     
         const annotationsDownload = new XMLHttpRequest();
-        annotationsDownload.open('GET', 'annotation.json');
+        annotationsDownload.open('GET', 'annotation1.json');
         annotationsDownload.onreadystatechange = function () {
             if (annotationsDownload.readyState === 4) {
                 const annotations = JSON.parse(annotationsDownload.responseText);
@@ -275,9 +276,40 @@ function loadModels() {
         edgesMesh.rotation.x = -Math.PI / 2;
         edgesMesh.scale.multiplyScalar(0.1);
         edgesMesh.position.set(0.5, -0.5, 0.5);
-    
-        // Add the edges mesh to the scene
         scene1.add(edgesMesh);
+
+        const annotationsDownload = new XMLHttpRequest();
+        annotationsDownload.open('GET', 'json/annotation4.json');
+        annotationsDownload.onreadystatechange = function () {
+            if (annotationsDownload.readyState === 4) {
+                const annotations = JSON.parse(annotationsDownload.responseText);
+                const view1 = document.getElementById('view1');
+                const view2 = document.getElementById('view2');
+                const view3 = document.getElementById('view3');
+                const view4 = document.getElementById('view4');
+
+                view1.addEventListener('click', function () {
+                    gotoAnnotation(annotations[0]);
+                });
+
+                view2.addEventListener('click', function () {
+                    gotoAnnotation(annotations[1]);
+                });
+
+                view3.addEventListener('click', function () {
+                    gotoAnnotation(annotations[2]);
+                });
+
+                view4.addEventListener('click', function () {
+                    gotoAnnotation(annotations[3]);
+                });
+            }
+        };
+        annotationsDownload.send();
+        undefined,
+        function (error) {
+        console.error('An error happened', error);
+        }
     });
 
     // gltfloader.load(
