@@ -230,7 +230,6 @@ function loadModels() {
         // Add the edges mesh to the scene
         scene1.add(edgesMesh);
         sceneMeshes.push(edgesMesh);
-
         (error) => {
             console.log('An error happened');
         }
@@ -291,10 +290,6 @@ function changeScene(){
                 gotoAnnotation(annotations[3]);
                 window.clearInterval(timer);
             });
-
-            
-            
-            // progressBar.style.display = 'none';
         }
     };
     annotationsDownload.send();

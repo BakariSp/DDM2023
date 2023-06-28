@@ -16,6 +16,7 @@ let annotations = {};
 let controls;
 let x, y, z;
 let pointLight = new THREE.PointLight(0xffffff);
+let i = 0;
 
 const frameInterval = 1000 / 60;
 const annotationMarkers = []
@@ -48,6 +49,7 @@ function init() {
     setupOrbitControls();
     renderer1.domElement.addEventListener('click', onClick, false)
     loadModels();
+    changeScene();
     scene1.add(camera1);
     handleResize();
     animateScene1(performance.now());
@@ -198,78 +200,56 @@ function loadModels() {
         gltf.scene.scale.multiplyScalar(0.1);
         gltf.scene.position.set(0.5, -0.5, 0.5);
         scene1.add(gltf.scene);
-    
-        const annotationsDownload = new XMLHttpRequest();
-        annotationsDownload.open('GET', 'json/annotation1.json');
-        annotationsDownload.onreadystatechange = function () {
-            if (annotationsDownload.readyState === 4) {
-                const annotations = JSON.parse(annotationsDownload.responseText);
-                const view1 = document.getElementById('view1');
-                const view2 = document.getElementById('view2');
-                const view3 = document.getElementById('view3');
-                const view4 = document.getElementById('view4');
-
-                view1.addEventListener('click', function () {
-                    gotoAnnotation(annotations[0]);
-                });
-
-                view2.addEventListener('click', function () {
-                    gotoAnnotation(annotations[1]);
-                });
-
-                view3.addEventListener('click', function () {
-                    gotoAnnotation(annotations[2]);
-                });
-
-                view4.addEventListener('click', function () {
-                    gotoAnnotation(annotations[3]);
-                });
-
-                // progressBar.style.display = 'none';
-            }
-        };
-        annotationsDownload.send();
-        // (xhr) => {
-        //     if (xhr.lengthComputable) {
-        //         let percentComplete = (xhr.loaded / xhr.total) * 100;
-        //         progressBar.value = percentComplete;
-        //         progressBar.style.display = 'block';
-        //     }
-        // },
         (error) => {
             console.log('An error happened');
-        }
-        
+        }   
     });
-    
-
-    // gltfloader.load(
-    //     './models/gltf/0627.gltf',
-    //     function (gltf) {
-    //     gltf.scene.scale.multiplyScalar(1);
-    //     gltf.scene.position.set(0.5, -0.5, 0.5);
-    //     scene1.add(gltf.scene);
-    //     },
-    //     undefined,
-    //     function (error) {
-    //     console.error('An error happened', error);
-    //     }
-    // );
-
-    // gltfloader.load(
-    //     './models/gltf/s3/s3.gltf',
-    //     function (gltf) {
-    //     gltf.scene.scale.multiplyScalar(1);
-    //     gltf.scene.position.set(0.5, -0.5, 0.5);
-    //     scene1.add(gltf.scene);
-    //     },
-    //     undefined,
-    //     function (error) {
-    //     console.error('An error happened', error);
-    //     }
-    // );
 }
 
+function changeScene(){
+    const annotationsDownload = new XMLHttpRequest();
+    annotationsDownload.open('GET', 'json/annotation2.json');
+    annotationsDownload.onreadystatechange = function () {
+        if (annotationsDownload.readyState === 4) {
+            const annotations = JSON.parse(annotationsDownload.responseText);
+            const view1 = document.getElementById('view1');
+            const view2 = document.getElementById('view2');
+            const view3 = document.getElementById('view3');
+            const view4 = document.getElementById('view4');
+
+            var timer = window.setInterval( 
+                function nextScene() { 
+                    if (i < 4){
+                        gotoAnnotation(annotations[i])
+                        i ++;
+                    } else {
+                        i = 0;
+                    }
+                }, 5000)
+
+            view1.addEventListener('click', function () {
+                gotoAnnotation(annotations[0]);
+                window.clearInterval(timer);
+            });
+
+            view2.addEventListener('click', function () {
+                gotoAnnotation(annotations[1]);
+                window.clearInterval(timer);
+            });
+
+            view3.addEventListener('click', function () {
+                gotoAnnotation(annotations[2]);
+                window.clearInterval(timer);
+            });
+
+            view4.addEventListener('click', function () {
+                gotoAnnotation(annotations[3]);
+                window.clearInterval(timer);
+            });
+        }
+    };
+    annotationsDownload.send();
+}
 
 function onClick(event) {
     raycaster.setFromCamera(
