@@ -21,7 +21,6 @@ const frameInterval = 1000 / 60;
 const annotationMarkers = []
 const targetObject = new THREE.Object3D();
 const raycaster = new THREE.Raycaster()
-const sceneMeshes = new Array()
 
 targetObject.position.set(0, 0, 50);
 pointLight.castShadow = true;
@@ -104,13 +103,10 @@ function setupScene() {
 }
 
 function setupLights() {
-    const pointLight = new THREE.PointLight( 0xff0000, 1, 100 );
-    pointLight.position.set( 10, 10, 10 );
-    scene1.add( pointLight );
-    const light = new THREE.AmbientLight( 0x404040, 1 ); // soft white light
-    // scene1.add( light );
+    const light = new THREE.AmbientLight( 0x404040, 1.2 ); // soft white light
+    scene1.add( light );
 
-    const Hemilight = new THREE.HemisphereLight( 0xffffbb, 0x080820, 2 );
+    const Hemilight = new THREE.HemisphereLight( 0xffffff, 0x080808, 0.9 );
     scene1.add( Hemilight );
 }
 
@@ -120,12 +116,12 @@ function setupOrbitControls() {
     scene1.add(orbit);
     controls = new OrbitControls(camera1, renderer1.domElement);
     controls.dampingFactor = 0.2
-    controls.enableDamping = true
-    controls.mouseButtons = {
-        LEFT: THREE.MOUSE.PAN,
-        MIDDLE: THREE.MOUSE.DOLLY,
-        RIGHT: THREE.MOUSE.ROTATE
-    };
+    // controls.enableDamping = true
+    // controls.mouseButtons = {
+    //     LEFT: THREE.MOUSE.PAN,
+    //     MIDDLE: THREE.MOUSE.DOLLY,
+    //     RIGHT: THREE.MOUSE.ROTATE
+    // };
 }
 
 function loadTextures(){

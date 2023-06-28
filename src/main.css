@@ -103,7 +103,7 @@
   .main canvas{
     width: 94vw;
     height: 70vh;
-    background: url(./scene.png);
+    /* background: url(./scene.png); */
     border: 1px solid white;
   }
 

@@ -120,10 +120,10 @@ function setupScene() {
 }
 
 function setupLights() {
-    const light = new THREE.AmbientLight( 0x404040, 2 ); // soft white light
+    const light = new THREE.AmbientLight( 0x404040, 1.2 ); // soft white light
     scene1.add( light );
 
-    const Hemilight = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
+    const Hemilight = new THREE.HemisphereLight( 0xffffff, 0x080808, 0.9 );
     scene1.add( Hemilight );
 }
 
