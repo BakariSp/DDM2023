@@ -201,7 +201,7 @@ function loadModels() {
     const gltfloader = new GLTFLoader();
 
 
-    gltfloader.load('./models/scene/0627scene1/0627scene1test01.gltf', function (gltf) {
+    gltfloader.load('./models/scene/0628S105/0628S105.gltf', function (gltf) {
         gltf.scene.scale.multiplyScalar(0.1);
         gltf.scene.position.set(0.5, -0.5, 0.5);
         scene1.add(gltf.scene);
@@ -388,6 +388,8 @@ function gotoAnnotation(a) {
         )
         .easing(TWEEN.Easing.Cubic.Out)
         .start()
+
+    cameraTarget1 = new THREE.Vector3( a.lookAt.x, a.lookAt.y, a.lookAt.z);
 
     new TWEEN.Tween(controls.target)
         .to(

@@ -68,6 +68,7 @@ function animate() {
     renderer1.render(scene1, camera1);
     controls.update();
     TWEEN.update();
+    // console.log(camera1.position);
 }
 
 
@@ -98,8 +99,8 @@ function setupScene() {
     camera1 = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
     // camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 1, 15 );
-    camera1.position.set( 0.00, 0.27, 5.05);
-    cameraTarget1 = new THREE.Vector3( 7.37, 3.27, 0.36 );
+    camera1.position.set( 0, 2, 12);
+    cameraTarget1 = new THREE.Vector3( 0, 2, -8);
     scene1 = new THREE.Scene();
     // scene1.fog = new THREE.Fog( 0xffffff, 20, 100 );
 }
@@ -368,6 +369,8 @@ function gotoAnnotation(a) {
         .easing(TWEEN.Easing.Cubic.Out)
         .start()
 
+    cameraTarget1 = new THREE.Vector3( a.lookAt.x, a.lookAt.y, a.lookAt.z);
+    
     new TWEEN.Tween(controls.target)
         .to(
             {

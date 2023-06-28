@@ -435,6 +435,8 @@ function gotoAnnotation(a) {
         .easing(TWEEN.Easing.Cubic.Out)
         .start()
 
+    cameraTarget1 = new THREE.Vector3( a.lookAt.x, a.lookAt.y, a.lookAt.z);
+
     new TWEEN.Tween(controls.target)
         .to(
             {
