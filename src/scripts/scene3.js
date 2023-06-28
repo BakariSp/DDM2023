@@ -45,6 +45,11 @@ function init() {
     setupLights();
     setupOrbitControls();
     renderer1.domElement.addEventListener('click', onClick, false);
+    document.addEventListener('mouseup', function () {
+        change = true;
+        console.log('mouse up');
+        changeScene();
+    });
     loadModels();
     changeScene();
     scene1.add(camera1);
@@ -190,6 +195,9 @@ function loadModels() {
     );
 }
 
+
+
+
 function changeScene(){
     const annotationsDownload = new XMLHttpRequest();
     annotationsDownload.open('GET', 'json/annotation3.json');
@@ -218,17 +226,14 @@ function changeScene(){
                             i = 0;
                         }
                 }, 5000)
-            }
-            
-
-            window.addEventListener('mouseup',(event) => {
+            } else {
                 change = true;
-            });
-
+            }
 
             window.addEventListener('mousedown',(event) => {
-                // window.clearInterval(timer);
                 change = false;
+                window.clearInterval(timer);
+                console.log('change:', change);
             });
 
             view1.addEventListener('click', function () {
@@ -262,6 +267,7 @@ function changeScene(){
         }
     };
     annotationsDownload.send();
+    console.log('change:', change);
 }
 
 function changeColor(viewList, view) {
