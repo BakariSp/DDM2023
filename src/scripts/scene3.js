@@ -15,6 +15,7 @@ let rectLight, spotLight;
 let annotations = {};
 let controls;
 let x, y, z;
+let i=0;
 let pointLight = new THREE.PointLight(0xffffff);
 
 const frameInterval = 1000 / 60;
