@@ -195,7 +195,7 @@ function loadModels() {
     const gltfloader = new GLTFLoader();
 
     
-    loader.load('./models/scene/Scene4/4wireframe/4wireframe.ply', function (geometry) {
+    loader.load('./models/scene/Scene4_2/4wireframe/4wireframe.ply', function (geometry) {
         geometry.computeVertexNormals();
     
         
@@ -223,13 +223,13 @@ function loadModels() {
     });
 
     gltfloader.load(
-        './models/scene/Scene4/4soild/4soild.gltf',
+        './models/scene/Scene4_2/4soild/4soild.gltf',
         function (gltf) {
             var model = gltf.scene;
             var newMaterial = new THREE.MeshStandardMaterial({color: 0xff0000});
-            model.traverse((o) => {
-                if (o.isMesh) o.material = newMaterial;
-            });
+            // model.traverse((o) => {
+            //     if (o.isMesh) o.material = newMaterial;
+            // });
             gltf.scene.scale.multiplyScalar(0.1);
             gltf.scene.position.set(0.5, -0.5, 0.5);
             scene1.add(gltf.scene);

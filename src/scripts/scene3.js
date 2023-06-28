@@ -182,7 +182,7 @@ function loadModels() {
 
     
     gltfloader.load(
-        './models/scene/s3/s3.gltf',
+        './models/scene/Scene3/s3.gltf',
         function (gltf) {
         gltf.scene.scale.multiplyScalar(0.5);
         gltf.scene.position.set(0.5, -0.5, 0.5);
