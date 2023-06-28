@@ -121,16 +121,6 @@
     color: black;
     text-decoration: none;
   }
-
-  /* unvisited link */
-  a:link {
-    color: red;
-  }
-  
-  /* visited link */
-  a:visited {
-    color: black;
-  }
   
   /* mouse over link */
   a:hover {
@@ -140,6 +130,9 @@
   }
   
   /* selected link */
-  a:active {
-    color: blue;
+  #description a:active {
+    background: aliceblue;
+  }
+  #description a:visited {
+    background: aliceblue;
   }
