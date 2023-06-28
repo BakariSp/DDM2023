@@ -210,6 +210,8 @@ function loadModels() {
         edgesMesh.rotation.x = -Math.PI / 2;
         edgesMesh.scale.multiplyScalar(0.1);
         edgesMesh.position.set(0.5, -0.5, 0.5);
+        // edgesMesh.castShadow = true;
+        // edgesMesh.receiveShadow = true;
         scene1.add(edgesMesh);
 
         undefined,

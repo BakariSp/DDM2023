@@ -258,15 +258,22 @@ function changeScene(){
     annotationsDownload.onreadystatechange = function () {
         if (annotationsDownload.readyState === 4) {
             const annotations = JSON.parse(annotationsDownload.responseText);
+            
             const view1 = document.getElementById('view1');
             const view2 = document.getElementById('view2');
             const view3 = document.getElementById('view3');
             const view4 = document.getElementById('view4');
+            const viewList = [view1, view2, view3, view4];
 
             var timer = window.setInterval( 
                 function nextScene() { 
                     if (i < 4){
-                        gotoAnnotation(annotations[i])
+                        gotoAnnotation(annotations[i]);
+                        for (let i = 0; i < viewList.length; ++i){
+                            viewList[i].style.backgroundColor = 'yellow';
+                            viewList[i].style.color = 'blue';
+                        }
+                        viewList[i].style.backgroundColor = 'blue';viewList[i].style.color = 'white';
                         i ++;
                     } else {
                         i = 0;
@@ -275,21 +282,25 @@ function changeScene(){
 
             view1.addEventListener('click', function () {
                 gotoAnnotation(annotations[0]);
+                view1.style.backgroundColor = 'blue';
                 window.clearInterval(timer);
             });
 
             view2.addEventListener('click', function () {
                 gotoAnnotation(annotations[1]);
+                view2.style.backgroundColor = 'blue';
                 window.clearInterval(timer);
             });
 
             view3.addEventListener('click', function () {
                 gotoAnnotation(annotations[2]);
+                view3.style.backgroundColor = 'blue';
                 window.clearInterval(timer);
             });
 
             view4.addEventListener('click', function () {
                 gotoAnnotation(annotations[3]);
+                view4.style.backgroundColor = 'blue';
                 window.clearInterval(timer);
             });
 
