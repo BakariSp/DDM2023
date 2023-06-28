@@ -195,8 +195,7 @@ function loadModels() {
     const gltfloader = new GLTFLoader();
 
 
-    gltfloader.load('./models/scene/Image World Simple_2/Image World Simple_2.gltf', function (gltf) {
-
+    gltfloader.load('./models/scene/sceneone/sceneone.gltf', function (gltf) {
         gltf.scene.scale.multiplyScalar(0.1);
         gltf.scene.position.set(0.5, -0.5, 0.5);
         scene1.add(gltf.scene);

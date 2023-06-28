@@ -45,10 +45,11 @@ function init() {
     const canvas = setupCanvas();
     setupRenderer(canvas);
     setupScene();
+    setupLights();
     setupOrbitControls();
     renderer1.domElement.addEventListener('click', onClick, false);
-    changeScene();
     loadModels();
+    changeScene();
     scene1.add(camera1);
     handleResize();
     animateScene1(performance.now());
@@ -116,7 +117,9 @@ function setupScene() {
     // scene1.fog = new THREE.Fog( 0xcccccc, 10, 15 );
     scene1.fog = new THREE.Fog( 0xffffff, 20, 50 );
     // ... add lights and other scene objects ...
+}
 
+function setupLights() {
     const color = 0xffffff;
     const intensity = 0.8;
     const light1 = new THREE.DirectionalLight(color, intensity);
@@ -152,7 +155,6 @@ function setupScene() {
 
     scene1.add(spotLight);
     scene1.add(targetObject);
-
 }
 
 function setupOrbitControls() {
