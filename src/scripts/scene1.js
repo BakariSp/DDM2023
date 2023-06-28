@@ -253,98 +253,6 @@ function loadModels() {
         scene1.add(lampMesh);
     });
 
-
-    /*
-    loader.load('./models/ply/ascii/scene01.ply', function (geometry) {
-        geometry.computeVertexNormals();
-    
-        // Create the EdgesGeometry for the model
-        // const edgesGeometry = new THREE.EdgesGeometry(geometry);
-    
-        // Create a LineBasicMaterial for the edges with white color
-        const edgesMaterial = new THREE.MeshPhysicalMaterial({ color: 0xA9A9A9 });
-    
-        // Create a LineSegments mesh using the edges geometry and material
-        const edgesMesh = new THREE.Mesh(geometry, edgesMaterial);
-    
-        // Scale and rotate the edges mesh to match the original model
-        edgesMesh.rotation.x = -Math.PI / 2;
-        edgesMesh.scale.multiplyScalar(0.25);
-        edgesMesh.position.set(5, -.5, 5);
-        edgesMesh.receiveShadow = true;
-    
-        // Add the edges mesh to the scene
-        scene1.add(edgesMesh);
-        sceneMeshes.push(edgesMesh)
-
-
-        //camera view switching
-        const annotationsDownload = new XMLHttpRequest()
-        annotationsDownload.open('GET', 'annotation.json')
-        annotationsDownload.onreadystatechange = function () {
-            if (annotationsDownload.readyState === 4) {
-                annotations = JSON.parse(annotationsDownload.responseText)
-
-                const annotationsPanel = document.getElementById('annotationsPanel')
-                const ul = document.createElement('ul')
-                const ulElem = annotationsPanel.appendChild(ul)
-                Object.keys(annotations).forEach((a) => {
-                    const li = document.createElement('li')
-                    const liElem = ulElem.appendChild(li)
-                    const button = document.createElement('button')
-                    button.innerHTML = a + ' : ' + annotations[a].title
-                    button.className = 'annotationButton'
-                    button.addEventListener('click', function () {
-                        gotoAnnotation(annotations[a])
-                    })
-                    liElem.appendChild(button)
-
-                    const annotationSpriteMaterial = new THREE.SpriteMaterial({
-                        depthTest: false,
-                        depthWrite: false,
-                        sizeAttenuation: false,
-                    })
-                    const annotationSprite = new THREE.Sprite(annotationSpriteMaterial)
-                    annotationSprite.scale.set(0.066, 0.066, 0.066)
-                    annotationSprite.position.copy(annotations[a].lookAt)
-                    annotationSprite.userData.id = a
-                    scene1.add(annotationSprite)
-                    annotationMarkers.push(annotationSprite)
-
-                    const annotationDiv = document.createElement('div')
-                    annotationDiv.className = 'annotationLabel'
-                    annotationDiv.innerHTML = a
-                    const annotationLabel = new CSS2DObject(annotationDiv)
-                    annotationLabel.position.copy(annotations[a].lookAt)
-                    scene1.add(annotationLabel)
-
-                    if (annotations[a].description) {
-                        const annotationDescriptionDiv = document.createElement('div')
-                        annotationDescriptionDiv.className = 'annotationDescription'
-                        annotationDescriptionDiv.innerHTML = annotations[a].description
-                        annotationDiv.appendChild(annotationDescriptionDiv)
-                        annotations[a].descriptionDomElement = annotationDescriptionDiv
-                    }
-                })
-                progressBar.style.display = 'none'
-            }
-            
-        }
-        annotationsDownload.send()
-        },
-        (xhr) => {
-            if (xhr.lengthComputable) {
-                let percentComplete = (xhr.loaded / xhr.total) * 100
-                progressBar.value = percentComplete
-                progressBar.style.display = 'block'
-            }
-        },
-        (error) => {
-            console.log('An error happened')
-        }
-    );*/
-
-    /*
     loader.load('./models/ply/ascii/scene01.ply', function (geometry) {
         geometry.computeVertexNormals();
     
@@ -367,79 +275,6 @@ function loadModels() {
         scene1.add(edgesMesh);
         sceneMeshes.push(edgesMesh);
     
-        const annotationsDownload = new XMLHttpRequest();
-        annotationsDownload.open('GET', 'json/annotation1.json');
-        annotationsDownload.onreadystatechange = function () {
-            if (annotationsDownload.readyState === 4) {
-                const annotations = JSON.parse(annotationsDownload.responseText);
-                const view1 = document.getElementById('view1');
-                const view2 = document.getElementById('view2');
-                const view3 = document.getElementById('view3');
-                const view4 = document.getElementById('view4');
-
-                view1.addEventListener('click', function () {
-                    gotoAnnotation(annotations[0]);
-                });
-
-                view2.addEventListener('click', function () {
-                    gotoAnnotation(annotations[1]);
-                });
-
-                view3.addEventListener('click', function () {
-                    gotoAnnotation(annotations[2]);
-                });
-
-                view4.addEventListener('click', function () {
-                    gotoAnnotation(annotations[3]);
-                });
-
-                // progressBar.style.display = 'none';
-            }
-        };
-        annotationsDownload.send();
-        // (xhr) => {
-        //     if (xhr.lengthComputable) {
-        //         let percentComplete = (xhr.loaded / xhr.total) * 100;
-        //         progressBar.value = percentComplete;
-        //         progressBar.style.display = 'block';
-        //     }
-        // },
-        (error) => {
-            console.log('An error happened');
-        }
-        
-    });*/
-    
-
-    loader.load('./models/ply/ascii/scene01.ply', function (geometry) {
-        geometry.computeVertexNormals();
-    
-        // Create the EdgesGeometry for the model
-        // const edgesGeometry = new THREE.EdgesGeometry(geometry);
-    
-        // Create a LineBasicMaterial for the edges with white color
-        const edgesMaterial = new THREE.MeshPhysicalMaterial({ color: 0xA9A9A9 });
-    
-        // Create a LineSegments mesh using the edges geometry and material
-        const edgesMesh = new THREE.Mesh(geometry, edgesMaterial);
-    
-        // Scale and rotate the edges mesh to match the original model
-        edgesMesh.rotation.x = -Math.PI / 2;
-        edgesMesh.scale.multiplyScalar(0.25);
-        edgesMesh.position.set(5, -.5, 5);
-        edgesMesh.receiveShadow = true;
-    
-        // Add the edges mesh to the scene
-        scene1.add(edgesMesh);
-        sceneMeshes.push(edgesMesh);
-    
-        // (xhr) => {
-        //     if (xhr.lengthComputable) {
-        //         let percentComplete = (xhr.loaded / xhr.total) * 100;
-        //         progressBar.value = percentComplete;
-        //         progressBar.style.display = 'block';
-        //     }
-        // },
         (error) => {
             console.log('An error happened');
         }
@@ -500,10 +335,6 @@ function changeScene(){
                 gotoAnnotation(annotations[3]);
                 window.clearInterval(timer);
             });
-
-            
-            
-            // progressBar.style.display = 'none';
         }
     };
     annotationsDownload.send();
@@ -524,10 +355,6 @@ function onClick(event) {
             gotoAnnotation(annotations[intersects[0].object.userData.id])
         }
     }
-}
-
-function switchScene() {
-    
 }
 
 function loadVideo(scene, videoSrc, width, height, posX, posY, posZ, scale) {
