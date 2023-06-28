@@ -25,6 +25,7 @@ const annotationMarkers = []
 const targetObject = new THREE.Object3D();
 const raycaster = new THREE.Raycaster()
 const sceneMeshes = new Array()
+const canvasContainer = document.getElementById('canvas-container');
 
 targetObject.position.set(0, 0, 50);
 pointLight.castShadow = true;
@@ -106,7 +107,7 @@ function setupCanvas() {
 }
 
 function setupRenderer(canvas) {
-    const canvasContainer = document.getElementById('canvas-container');
+   
     const width = canvasContainer.offsetWidth;
     const height = canvasContainer.offsetHeight;
   

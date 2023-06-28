@@ -121,10 +121,10 @@ function setupScene() {
 }
 
 function setupLights() {
-    const light = new THREE.AmbientLight( 0xffffff, 2 ); // soft white light
+    const light = new THREE.AmbientLight( 0x404040, 1.2 ); // soft white light
     scene1.add( light );
 
-    const Hemilight = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
+    const Hemilight = new THREE.HemisphereLight( 0xffffff, 0x080808, 0.9 );
     scene1.add( Hemilight );
 }
 
@@ -135,11 +135,11 @@ function setupOrbitControls() {
     controls = new OrbitControls(camera1, renderer1.domElement);
     controls.dampingFactor = 0.2
     controls.enableDamping = true
-    controls.mouseButtons = {
-        LEFT: THREE.MOUSE.PAN,
-        MIDDLE: THREE.MOUSE.DOLLY,
-        RIGHT: THREE.MOUSE.ROTATE
-    };
+    // controls.mouseButtons = {
+    //     LEFT: THREE.MOUSE.PAN,
+    //     MIDDLE: THREE.MOUSE.DOLLY,
+    //     RIGHT: THREE.MOUSE.ROTATE
+    // };
 }
 
 function loadTextures(){
@@ -195,7 +195,7 @@ function loadModels() {
     const gltfloader = new GLTFLoader();
 
 
-    gltfloader.load('./models/scene/sceneone/sceneone.gltf', function (gltf) {
+    gltfloader.load('./models/scene/0627scene1/0627scene1test01.gltf', function (gltf) {
         gltf.scene.scale.multiplyScalar(0.1);
         gltf.scene.position.set(0.5, -0.5, 0.5);
         scene1.add(gltf.scene);
