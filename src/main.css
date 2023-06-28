@@ -69,13 +69,13 @@
 
   /* moving & fading */
   section .section-item:hover .a:nth-child(1){
-    top:-20px;
+    top:-10px;
     opacity: 0.5;
     transition: top 0.5s, opacity 0.5s;
   }
 
   section .section-item:hover .a:nth-child(2){
-    top:20px;
+    top:10px;
     opacity: 0.5;
     transition: top 0.5s, opacity 0.5s;
   }
