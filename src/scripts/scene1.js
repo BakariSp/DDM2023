@@ -225,6 +225,7 @@ function loadModels() {
         edgesMesh.rotation.x = -Math.PI / 2;
         edgesMesh.scale.multiplyScalar(0.25);
         edgesMesh.position.set(5, -.5, 5);
+        edgesMesh.castShadow = true;
         edgesMesh.receiveShadow = true;
     
         // Add the edges mesh to the scene
