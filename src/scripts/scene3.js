@@ -10,13 +10,12 @@ import TWEEN from '@tweenjs/tween.js';
 
 RectAreaLightUniformsLib.init();
 
-let camera1, cameraTarget1, scene1, renderer1, lastFrameTime = 0, resizeScale = 0.6;
-let rectLight, spotLight;
+let camera1, cameraTarget1, scene1, renderer1, lastFrameTime = 0;
 let annotations = {};
 let controls;
-let x, y, z;
 let i=0;
 let pointLight = new THREE.PointLight(0xffffff);
+let change=true;
 
 const frameInterval = 1000 / 60;
 const annotationMarkers = []
@@ -39,8 +38,6 @@ document.body.appendChild(labelRenderer.domElement);
 
 // const progressBar = document.getElementById('progressBar')
 
-let time = 0;
-
 function init() {
     const canvas = setupCanvas();
     setupRenderer(canvas);
@@ -58,28 +55,10 @@ function init() {
 
 function animate() {
     requestAnimationFrame(animate);
-    x = -20;
-    y = 10;
-    z = 10;
 
-    // Update the position of the point light and the bulb
-    pointLight.position.set(x - 0.5, y+0.5, z - 1 );
-    rectLight.position.set(x - 0.2 , y , z );
-    spotLight.position.set(x , y , z - 0.2);
-    
-    targetObject.position.set(x+100, y-10, z);
-
-    spotLight.target = targetObject;
-    // bulb.position.set(x, y, z);
-    time += 0.01;
     renderer1.render(scene1, camera1);
-
-    // const stats = new Stats()
-    // document.body.appendChild(stats.dom)
-
     controls.update();
     TWEEN.update();
-    // stats.update();
 }
 
 
@@ -98,7 +77,7 @@ function setupRenderer(canvas) {
     renderer1 = new THREE.WebGLRenderer({ canvas, antialias: true });
     renderer1.setPixelRatio(window.devicePixelRatio);
     renderer1.setSize(width, height);
-    renderer1.setClearColor(0xffffff, 1);
+    renderer1.setClearColor(0xc5cbd4, 1);
     renderer1.shadowMap.enabled = true;
     canvasContainer.appendChild(renderer1.domElement);
 }
@@ -115,46 +94,19 @@ function setupScene() {
     cameraTarget1 = new THREE.Vector3( 0, 0, 0 );
     scene1 = new THREE.Scene();
     // scene1.fog = new THREE.Fog( 0xcccccc, 10, 15 );
-    scene1.fog = new THREE.Fog( 0xffffff, 20, 50 );
+    // scene1.fog = new THREE.Fog( 0xffffff, 20, 100 );
     // ... add lights and other scene objects ...
 }
 
 function setupLights() {
-    const color = 0xffffff;
-    const intensity = 0.8;
-    const light1 = new THREE.DirectionalLight(color, intensity);
-    const light2 = new THREE.DirectionalLight(color, intensity);
-    light1.position.set(0.3, 0.3, 0);
-    light2.position.set(0, 0, 0.3);
+    const pointLight = new THREE.PointLight( 0xff0000, 1, 100 );
+    pointLight.position.set( 10, 10, 10 );
+    scene1.add( pointLight );
+    const light = new THREE.AmbientLight( 0x404040, 1 ); // soft white light
+    // scene1.add( light );
 
-    const pointLightHelper = new THREE.PointLightHelper ( pointLight );
-    pointLight.add( pointLightHelper );
-
-    const width = 2.2;
-    const height = 1.2;
-    rectLight = new THREE.RectAreaLight( 0xffae36, 10,  width, height );
-    rectLight.position.set(0, 0.1, 0);
-    rectLight.lookAt( 1, 0, 0 );
-    rectLight.decay = 2;
-    scene1.add( rectLight );
-    
-    const rectLightHelper = new RectAreaLightHelper( rectLight );
-    rectLight.add( rectLightHelper );
-
-    spotLight = new THREE.SpotLight(0xffae36, 10);
-    spotLight.position.set(0, 10, 0);
-    spotLight.castShadow = true;
-    spotLight.angle = Math.PI / 4; // Spread angle
-    spotLight.penumbra = 0.15; // Controls the softness of the light's edge
-    spotLight.decay = 3; // The amount the light dims along the distance of the light
-    spotLight.distance = 200; // The maximum distance the light shines
-    spotLight.shadow.mapSize.width = 512; // default is 512
-    spotLight.shadow.mapSize.height = 512; // default is 512
-    spotLight.shadow.camera.near = 0.5; // default
-    spotLight.shadow.camera.far = 500; // default
-
-    scene1.add(spotLight);
-    scene1.add(targetObject);
+    const Hemilight = new THREE.HemisphereLight( 0xffffbb, 0x080820, 2 );
+    scene1.add( Hemilight );
 }
 
 function setupOrbitControls() {
@@ -223,25 +175,11 @@ function loadModels() {
     const loader = new PLYLoader();
     const gltfloader = new GLTFLoader();
 
-
-    gltfloader.load(
-        './models/gltf/s3/s3.gltf', 
-        function (gltf) {
-            gltf.scene.scale.multiplyScalar(1);
-            gltf.scene.position.set(0.5, -0.5, 0.5);
-            scene1.add(gltf.scene);
-        }, 
-        undefined, 
-        function (error) {
-            console.log('An error happened');
-        }
-    );
-        
     
     gltfloader.load(
-        './models/gltf/s3/s3.gltf',
+        './models/scene/s3/s3.gltf',
         function (gltf) {
-        gltf.scene.scale.multiplyScalar(1);
+        gltf.scene.scale.multiplyScalar(0.5);
         gltf.scene.position.set(0.5, -0.5, 0.5);
         scene1.add(gltf.scene);
         },
@@ -265,43 +203,57 @@ function changeScene(){
             const view4 = document.getElementById('view4');
             const viewList = [view1, view2, view3, view4];
 
-            var timer = window.setInterval( 
-                function nextScene() { 
-                    if (i < 4){
-                        gotoAnnotation(annotations[i]);
-                        for (let i = 0; i < viewList.length; ++i){
-                            viewList[i].style.backgroundColor = 'yellow';
-                            viewList[i].style.color = 'blue';
+            if (change==true) {
+                var timer = window.setInterval( 
+                    function nextScene() { 
+                        if (i < 4){
+                            gotoAnnotation(annotations[i]);
+                            for (let i = 0; i < viewList.length; ++i){
+                                viewList[i].style.backgroundColor = 'yellow';
+                                viewList[i].style.color = 'blue';
+                            }
+                            viewList[i].style.backgroundColor = 'blue';viewList[i].style.color = 'white';
+                            i ++;
+                        } else {
+                            i = 0;
                         }
-                        viewList[i].style.backgroundColor = 'blue';viewList[i].style.color = 'white';
-                        i ++;
-                    } else {
-                        i = 0;
-                    }
                 }, 5000)
+            }
+            
+
+            window.addEventListener('mouseup',(event) => {
+                change = true;
+            });
+
+
+            window.addEventListener('mousedown',(event) => {
+                // window.clearInterval(timer);
+                change = false;
+            });
 
             view1.addEventListener('click', function () {
                 gotoAnnotation(annotations[0]);
-                view1.style.backgroundColor = 'blue';
+                changeColor(viewList, view1);
                 window.clearInterval(timer);
             });
 
             view2.addEventListener('click', function () {
                 gotoAnnotation(annotations[1]);
-                view2.style.backgroundColor = 'blue';
+                changeColor(viewList, view2);
                 window.clearInterval(timer);
             });
 
             view3.addEventListener('click', function () {
                 gotoAnnotation(annotations[2]);
-                view3.style.backgroundColor = 'blue';
+                changeColor(viewList, view3);
                 window.clearInterval(timer);
             });
 
             view4.addEventListener('click', function () {
                 gotoAnnotation(annotations[3]);
-                view4.style.backgroundColor = 'blue';
+                changeColor(viewList, view4);
                 window.clearInterval(timer);
+
             });
 
             
@@ -310,6 +262,15 @@ function changeScene(){
         }
     };
     annotationsDownload.send();
+}
+
+function changeColor(viewList, view) {
+    for (let i = 0; i < viewList.length; ++i){
+        viewList[i].style.backgroundColor = 'yellow';
+        viewList[i].style.color = 'blue';
+    }
+    view.style.backgroundColor = 'blue';
+    view.style.color = 'white';
 }
 
 function onClick(event) {

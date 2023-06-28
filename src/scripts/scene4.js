@@ -14,6 +14,7 @@ let camera1, cameraTarget1, scene1, renderer1, lastFrameTime = 0, resizeScale = 
 let annotations = {};
 let controls;
 let x, y, z;
+let i=0;
 let pointLight = new THREE.PointLight(0xffffff);
 
 const frameInterval = 1000 / 60;
