@@ -14,6 +14,7 @@ let camera1, cameraTarget1, scene1, renderer1, lastFrameTime = 0, resizeScale = 
 let annotations = {};
 let controls;
 let x, y, z;
+let i = 0;
 let pointLight = new THREE.PointLight(0xffffff);
 
 const frameInterval = 1000 / 60;
@@ -220,18 +221,6 @@ function loadModels() {
         }
     });
 
-    // gltfloader.load(
-    //     './models/gltf/s3/s3.gltf',
-    //     function (gltf) {
-    //     gltf.scene.scale.multiplyScalar(1);
-    //     gltf.scene.position.set(0.5, -0.5, 0.5);
-    //     scene1.add(gltf.scene);
-    //     },
-    //     undefined,
-    //     function (error) {
-    //     console.error('An error happened', error);
-    //     }
-    // );
 }
 
 function changeScene(){
@@ -244,11 +233,17 @@ function changeScene(){
             const view2 = document.getElementById('view2');
             const view3 = document.getElementById('view3');
             const view4 = document.getElementById('view4');
+            const viewList = [view1, view2, view3, view4];
 
             var timer = window.setInterval( 
                 function nextScene() { 
                     if (i < 4){
-                        gotoAnnotation(annotations[i])
+                        gotoAnnotation(annotations[i]);
+                        for (let i = 0; i < viewList.length; ++i){
+                            viewList[i].style.backgroundColor = 'yellow';
+                            viewList[i].style.color = 'darkred';
+                        }
+                        viewList[i].style.backgroundColor = 'darkred';viewList[i].style.color = 'white';
                         i ++;
                     } else {
                         i = 0;
@@ -257,24 +252,31 @@ function changeScene(){
 
             view1.addEventListener('click', function () {
                 gotoAnnotation(annotations[0]);
+                view1.style.backgroundColor = 'darkred';
+                view1.style.color = 'white'
                 window.clearInterval(timer);
             });
 
             view2.addEventListener('click', function () {
                 gotoAnnotation(annotations[1]);
+                view2.style.backgroundColor = 'darkred';
+                view2.style.color = 'white'
                 window.clearInterval(timer);
             });
 
             view3.addEventListener('click', function () {
                 gotoAnnotation(annotations[2]);
+                view3.style.backgroundColor = 'darkred';
+                view3.style.color = 'white'
                 window.clearInterval(timer);
             });
 
             view4.addEventListener('click', function () {
                 gotoAnnotation(annotations[3]);
+                view4.style.backgroundColor = 'darkred';
+                view4.style.color = 'white'
                 window.clearInterval(timer);
             });
-
             
             
             // progressBar.style.display = 'none';

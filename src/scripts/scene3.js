@@ -254,7 +254,7 @@ function loadModels() {
 
 function changeScene(){
     const annotationsDownload = new XMLHttpRequest();
-    annotationsDownload.open('GET', 'json/annotation1.json');
+    annotationsDownload.open('GET', 'json/annotation3.json');
     annotationsDownload.onreadystatechange = function () {
         if (annotationsDownload.readyState === 4) {
             const annotations = JSON.parse(annotationsDownload.responseText);
