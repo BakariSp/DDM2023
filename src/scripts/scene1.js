@@ -11,21 +11,19 @@ import TWEEN from '@tweenjs/tween.js';
 RectAreaLightUniformsLib.init();
 
 let camera1, cameraTarget1, scene1, renderer1, lastFrameTime = 0, resizeScale = 0.6;
-let lampMesh = new THREE.Mesh();
 let rectLight, spotLight;
 let annotations = {};
 let controls;
 let x, y, z;
-let change = true;
 let pointLight = new THREE.PointLight(0xffffff);
-let i=0;
+let i = 0;
+let change = true;
 
 const frameInterval = 1000 / 60;
 const annotationMarkers = []
 const targetObject = new THREE.Object3D();
 const raycaster = new THREE.Raycaster()
 const sceneMeshes = new Array()
-const canvasContainer = document.getElementById('canvas-container');
 
 targetObject.position.set(0, 0, 50);
 pointLight.castShadow = true;
@@ -43,7 +41,6 @@ document.body.appendChild(labelRenderer.domElement);
 // const progressBar = document.getElementById('progressBar')
 
 let time = 0;
-const radius = 10;
 
 function init() {
     const canvas = setupCanvas();
@@ -59,10 +56,6 @@ function init() {
     });
     loadModels();
     changeScene();
-    loadVideo(scene1, './models/video/output.mp4', 1, 17, -16.5, 7.5, 9,0.9);
-    loadVideo(scene1, './models/video/output.mp4', 1, 17, -5.5, 7.5, 9,0.9);
-    loadVideo(scene1, './models/video/output.mp4', 1, 17, 5.5, 7.5, 9,0.9);
-    loadVideo(scene1, './models/video/output.mp4', 1, 17, 17, 7.5, 9,0.9);
     scene1.add(camera1);
     handleResize();
     animateScene1(performance.now());
@@ -72,21 +65,21 @@ function init() {
 function animate() {
     requestAnimationFrame(animate);
     x = -20;
-    y = Math.sin(time*0.5) * radius + 10;
-    z = Math.cos(time*0.5) * radius + 10;
+    y = 10;
+    z = 10;
 
     // Update the position of the point light and the bulb
-    pointLight.position.set(x - 0.5, y+0.5, z - 1 );
-    rectLight.position.set(x - 0.2 , y , z );
-    spotLight.position.set(x , y , z - 0.2);
+    // pointLight.position.set(x - 0.5, y+0.5, z - 1 );
+    // rectLight.position.set(x - 0.2 , y , z );
+    // spotLight.position.set(x , y , z - 0.2);
     
     targetObject.position.set(x+100, y-10, z);
 
-    spotLight.target = targetObject;
+    // spotLight.target = targetObject;
     // bulb.position.set(x, y, z);
-    if(lampMesh.isMesh){
-        lampMesh.position.set(x, y, z);
-    }
+    // if(lampMesh.isMesh){
+    //     lampMesh.position.set(x, y, z);
+    // }
     time += 0.01;
     renderer1.render(scene1, camera1);
 
@@ -107,14 +100,14 @@ function setupCanvas() {
 }
 
 function setupRenderer(canvas) {
-   
+    const canvasContainer = document.getElementById('canvas-container');
     const width = canvasContainer.offsetWidth;
     const height = canvasContainer.offsetHeight;
   
     renderer1 = new THREE.WebGLRenderer({ canvas, antialias: true });
     renderer1.setPixelRatio(window.devicePixelRatio);
     renderer1.setSize(width, height);
-    renderer1.setClearColor(0x634400, 1);
+    renderer1.setClearColor(0xDDDDDD, 1);
     renderer1.shadowMap.enabled = true;
     canvasContainer.appendChild(renderer1.domElement);
 }
@@ -127,50 +120,18 @@ function setupScene() {
     camera1 = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
     // camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 1, 15 );
-    camera1.position.set( 16, 10, -9 );
+    camera1.position.set( 3, 0.15, 3 );
     cameraTarget1 = new THREE.Vector3( 0, 0, 0 );
     scene1 = new THREE.Scene();
-    // scene1.fog = new THREE.Fog( 0xcccccc, 10, 15 );
-    scene1.fog = new THREE.Fog( 0x9e6003, 20, 50 );
-    // ... add lights and other scene objects ...
+    scene1.fog = new THREE.Fog( 0xffffff, 20, 100 );
 }
 
 function setupLights() {
-    const color = 0xffffff;
-    const intensity = 0.8;
-    const light1 = new THREE.DirectionalLight(color, intensity);
-    const light2 = new THREE.DirectionalLight(color, intensity);
-    light1.position.set(0.3, 0.3, 0);
-    light2.position.set(0, 0, 0.3);
+    const light = new THREE.AmbientLight( 0x404040, 1.2 ); // soft white light
+    scene1.add( light );
 
-    const pointLightHelper = new THREE.PointLightHelper ( pointLight );
-    pointLight.add( pointLightHelper );
-
-    const width = 2.2;
-    const height = 1.2;
-    rectLight = new THREE.RectAreaLight( 0xffae36, 10,  width, height );
-    rectLight.position.set(0, 0.1, 0);
-    rectLight.lookAt( 1, 0, 0 );
-    rectLight.decay = 2;
-    scene1.add( rectLight );
-    
-    const rectLightHelper = new RectAreaLightHelper( rectLight );
-    rectLight.add( rectLightHelper );
-
-    spotLight = new THREE.SpotLight(0xffae36, 10);
-    spotLight.position.set(0, 10, 0);
-    spotLight.castShadow = true;
-    spotLight.angle = Math.PI / 4; // Spread angle
-    spotLight.penumbra = 0.15; // Controls the softness of the light's edge
-    spotLight.decay = 3; // The amount the light dims along the distance of the light
-    spotLight.distance = 200; // The maximum distance the light shines
-    spotLight.shadow.mapSize.width = 512; // default is 512
-    spotLight.shadow.mapSize.height = 512; // default is 512
-    spotLight.shadow.camera.near = 0.5; // default
-    spotLight.shadow.camera.far = 500; // default
-
-    scene1.add(spotLight);
-    scene1.add(targetObject);
+    const Hemilight = new THREE.HemisphereLight( 0xffffff, 0x080808, 0.9 );
+    scene1.add( Hemilight );
 }
 
 function setupOrbitControls() {
@@ -179,7 +140,7 @@ function setupOrbitControls() {
     scene1.add(orbit);
     controls = new OrbitControls(camera1, renderer1.domElement);
     controls.dampingFactor = 0.2
-    // controls.enableDamping = true
+    controls.enableDamping = true
     // controls.mouseButtons = {
     //     LEFT: THREE.MOUSE.PAN,
     //     MIDDLE: THREE.MOUSE.DOLLY,
@@ -187,75 +148,67 @@ function setupOrbitControls() {
     // };
 }
 
+function loadTextures(){
+    const textureLoader = new THREE.TextureLoader();
+    const gltfloader = new GLTFLoader();
+    //textured models
+    textureLoader.load('./models/img/img.jpg', function(texture){
+        // Load a GLTF or GLB resource
+        gltfloader.load(
+            './models/gltf/board.gltf',
+            function ( gltf ) {
+                gltf.scene.scale.multiplyScalar(0.1);
+                gltf.scene.position.set(-0.5, -0.5, 0.5);
+                gltf.scene.traverse(function (child) {
+                    if (child.isMesh) {
+                        child.material = new THREE.MeshPhongMaterial({ map: texture, side: THREE.DoubleSide });
+                        child.material.needsUpdate = true;
+                    }
+                });
+                scene1.add( gltf.scene );
+            },
+            undefined,
+            function ( error ) {
+                console.error( error );
+            }
+        );
+    });
+
+
+    textureLoader.load('./models/img/img.jpg', function(texture){
+
+        // The image has a size of 477x601 pixels.
+        const imageWidth = 100;
+        const imageHeight = 150;
+
+        // Create a plane geometry with the same aspect ratio as the image
+        var geometry = new THREE.PlaneGeometry(imageWidth / 100, imageHeight / 100);
+
+        // Create a MeshBasicMaterial with the loaded texture
+        var material = new THREE.MeshBasicMaterial({map: texture, side: THREE.DoubleSide});
+
+        // Combine geometry and material to a mesh
+        var mesh = new THREE.Mesh(geometry, material);
+
+        // Add the mesh to the scene
+        scene1.add(mesh);
+    });
+}
 
 
 function loadModels() {
     const loader = new PLYLoader();
     const gltfloader = new GLTFLoader();
-    
 
-    loader.load('./models/ply/ascii/lamp.ply', function (geometry) {
-        geometry.computeVertexNormals();
-    
-        // Create the EdgesGeometry for the model
-        // const edgesGeometry = new THREE.EdgesGeometry(geometry);
-    
-        // Create a LineBasicMaterial for the edges with white color
-        const edgesMaterial = new THREE.MeshPhysicalMaterial({ color: 0xA9A9A9 });
-    
-        // Create a LineSegments mesh using the edges geometry and material
-        lampMesh = new THREE.Mesh(geometry, edgesMaterial);
-    
-        // Scale and rotate the edges mesh to match the original model
-        lampMesh.rotation.x = -Math.PI / 2;
-        lampMesh.rotation.z = Math.PI / 2;
-        lampMesh.scale.multiplyScalar(0.25);
-        lampMesh.position.set(0, 0, 0);
-    
-        // Add the edges mesh to the scene
-        scene1.add(lampMesh);
-    });
 
-    loader.load('./models/ply/ascii/scene01.ply', function (geometry) {
-        geometry.computeVertexNormals();
-    
-        // Create the EdgesGeometry for the model
-        // const edgesGeometry = new THREE.EdgesGeometry(geometry);
-    
-        // Create a LineBasicMaterial for the edges with white color
-        const edgesMaterial = new THREE.MeshPhysicalMaterial({ color: 0xA9A9A9 });
-    
-        // Create a LineSegments mesh using the edges geometry and material
-        const edgesMesh = new THREE.Mesh(geometry, edgesMaterial);
-    
-        // Scale and rotate the edges mesh to match the original model
-        edgesMesh.rotation.x = -Math.PI / 2;
-        edgesMesh.scale.multiplyScalar(0.25);
-        edgesMesh.position.set(5, -.5, 5);
-        edgesMesh.castShadow = true;
-        edgesMesh.receiveShadow = true;
-    
-        // Add the edges mesh to the scene
-        scene1.add(edgesMesh);
-        sceneMeshes.push(edgesMesh);
-        (error) => {
-            console.log('An error happened');
-        }
-        
-    });
-
-    gltfloader.load(
-        './models/gltf/Sign.gltf',
-        function (gltf) {
-        gltf.scene.scale.multiplyScalar(1);
+    gltfloader.load('./models/scene/0627scene1/0627scene1test01.gltf', function (gltf) {
+        gltf.scene.scale.multiplyScalar(0.1);
         gltf.scene.position.set(0.5, -0.5, 0.5);
         scene1.add(gltf.scene);
-        },
-        undefined,
-        function (error) {
-        console.error('An error happened', error);
-        }
-    );
+        (error) => {
+            console.log('An error happened');
+        }   
+    });
 }
 
 function changeScene(){
@@ -356,7 +309,6 @@ function onClick(event) {
     }
 }
 
-
 function loadVideo(scene, videoSrc, width, height, posX, posY, posZ, scale) {
     // Create video element
     var video = document.createElement('video');
@@ -402,6 +354,7 @@ function handleResize() {
     window.addEventListener('resize', () => {
         camera1.aspect = window.innerWidth / window.innerHeight;
         camera1.updateProjectionMatrix();
+        const canvasContainer = document.getElementById('canvas-container');
         const width = canvasContainer.offsetWidth;
         const height = canvasContainer.offsetHeight;
         renderer1.setSize(width, height);

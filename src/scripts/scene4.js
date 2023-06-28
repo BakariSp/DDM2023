@@ -15,6 +15,7 @@ let annotations = {};
 let controls;
 let x, y, z;
 let i = 0;
+let change = true;
 
 let pointLight = new THREE.PointLight(0xffffff);
 
@@ -46,7 +47,12 @@ function init() {
     setupScene();
     setupLights();
     setupOrbitControls();
-    renderer1.domElement.addEventListener('click', onClick, false)
+    renderer1.domElement.addEventListener('click', onClick, false);
+    document.addEventListener('mouseup', function () {
+        change = true;
+        console.log('mouse up');
+        changeScene();
+    });
     loadModels();
     changeScene();
     scene1.add(camera1);
@@ -244,64 +250,83 @@ function loadModels() {
 
 function changeScene(){
     const annotationsDownload = new XMLHttpRequest();
-    annotationsDownload.open('GET', 'json/annotation4.json');
+    annotationsDownload.open('GET', 'json/annotation3.json');
     annotationsDownload.onreadystatechange = function () {
         if (annotationsDownload.readyState === 4) {
             const annotations = JSON.parse(annotationsDownload.responseText);
+            
             const view1 = document.getElementById('view1');
             const view2 = document.getElementById('view2');
             const view3 = document.getElementById('view3');
             const view4 = document.getElementById('view4');
             const viewList = [view1, view2, view3, view4];
 
-            var timer = window.setInterval( 
-                function nextScene() { 
-                    if (i < 4){
-                        gotoAnnotation(annotations[i]);
-                        for (let i = 0; i < viewList.length; ++i){
-                            viewList[i].style.backgroundColor = 'yellow';
-                            viewList[i].style.color = 'darkred';
+            if (change==true) {
+                var timer = window.setInterval( 
+                    function nextScene() { 
+                        if (i < 4){
+                            gotoAnnotation(annotations[i]);
+                            for (let i = 0; i < viewList.length; ++i){
+                                viewList[i].style.backgroundColor = 'yellow';
+                                viewList[i].style.color = 'blue';
+                            }
+                            viewList[i].style.backgroundColor = 'blue';viewList[i].style.color = 'white';
+                            i ++;
+                        } else {
+                            i = 0;
                         }
-                        viewList[i].style.backgroundColor = 'darkred';viewList[i].style.color = 'white';
-                        i ++;
-                    } else {
-                        i = 0;
-                    }
                 }, 5000)
+            } else {
+                change = true;
+            }
+
+            window.addEventListener('mousedown',(event) => {
+                change = false;
+                window.clearInterval(timer);
+                console.log('change:', change);
+            });
 
             view1.addEventListener('click', function () {
                 gotoAnnotation(annotations[0]);
-                view1.style.backgroundColor = 'darkred';
-                view1.style.color = 'white'
+                changeColor(viewList, view1);
                 window.clearInterval(timer);
             });
 
             view2.addEventListener('click', function () {
                 gotoAnnotation(annotations[1]);
-                view2.style.backgroundColor = 'darkred';
-                view2.style.color = 'white'
+                changeColor(viewList, view2);
                 window.clearInterval(timer);
             });
 
             view3.addEventListener('click', function () {
                 gotoAnnotation(annotations[2]);
-                view3.style.backgroundColor = 'darkred';
-                view3.style.color = 'white'
+                changeColor(viewList, view3);
                 window.clearInterval(timer);
             });
 
             view4.addEventListener('click', function () {
                 gotoAnnotation(annotations[3]);
-                view4.style.backgroundColor = 'darkred';
-                view4.style.color = 'white'
+                changeColor(viewList, view4);
                 window.clearInterval(timer);
+
             });
+
             
             
             // progressBar.style.display = 'none';
         }
     };
     annotationsDownload.send();
+    console.log('change:', change);
+}
+
+function changeColor(viewList, view) {
+    for (let i = 0; i < viewList.length; ++i){
+        viewList[i].style.backgroundColor = 'yellow';
+        viewList[i].style.color = 'blue';
+    }
+    view.style.backgroundColor = 'blue';
+    view.style.color = 'white';
 }
 
 function onClick(event) {

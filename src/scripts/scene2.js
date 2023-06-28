@@ -17,7 +17,7 @@ let controls;
 let x, y, z;
 let pointLight = new THREE.PointLight(0xffffff);
 let i = 0;
-
+let change = true;
 const frameInterval = 1000 / 60;
 const annotationMarkers = []
 const targetObject = new THREE.Object3D();
@@ -47,10 +47,16 @@ function init() {
     setupScene();
     setupLights();
     setupOrbitControls();
-    renderer1.domElement.addEventListener('click', onClick, false)
+    renderer1.domElement.addEventListener('click', onClick, false);
+    document.addEventListener('mouseup', function () {
+        change = true;
+        console.log('mouse up');
+        changeScene();
+    });
     loadModels();
-    changeScene();
+    // changeScene();
     scene1.add(camera1);
+    
     handleResize();
     animateScene1(performance.now());
     animate();
@@ -58,37 +64,15 @@ function init() {
 
 function animate() {
     requestAnimationFrame(animate);
-    x = -20;
-    y = 10;
-    z = 10;
-
-    // Update the position of the point light and the bulb
-    // pointLight.position.set(x - 0.5, y+0.5, z - 1 );
-    // rectLight.position.set(x - 0.2 , y , z );
-    // spotLight.position.set(x , y , z - 0.2);
-    
-    targetObject.position.set(x+100, y-10, z);
-
-    // spotLight.target = targetObject;
-    // bulb.position.set(x, y, z);
-    // if(lampMesh.isMesh){
-    //     lampMesh.position.set(x, y, z);
-    // }
     time += 0.01;
     renderer1.render(scene1, camera1);
-
-    // const stats = new Stats()
-    // document.body.appendChild(stats.dom)
-
     controls.update();
     TWEEN.update();
-    // stats.update();
 }
 
 
 function setupCanvas() {
     const canvas = document.getElementById('renderCanvas0');
-    // document.body.style.margin = '0';
     document.body.style.overflow = 'hidden';
     return canvas;
 }
@@ -107,17 +91,17 @@ function setupRenderer(canvas) {
 }
 
 function setupScene() {
-    const fov = 75;
+    const fov = 55;
     const aspect = window.innerWidth / window.innerHeight;
     const near = 0.1;
     const far = 10000; // Increased from a smaller value
     camera1 = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
     // camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 1, 15 );
-    camera1.position.set( 3, 0.15, 3 );
-    cameraTarget1 = new THREE.Vector3( 0, 0, 0 );
+    camera1.position.set( 0.00, 0.27, 5.05);
+    cameraTarget1 = new THREE.Vector3( 7.37, 3.27, 0.36 );
     scene1 = new THREE.Scene();
-    scene1.fog = new THREE.Fog( 0xffffff, 20, 100 );
+    // scene1.fog = new THREE.Fog( 0xffffff, 20, 100 );
 }
 
 function setupLights() {
@@ -135,11 +119,11 @@ function setupOrbitControls() {
     controls = new OrbitControls(camera1, renderer1.domElement);
     controls.dampingFactor = 0.2
     controls.enableDamping = true
-    // controls.mouseButtons = {
-    //     LEFT: THREE.MOUSE.PAN,
-    //     MIDDLE: THREE.MOUSE.DOLLY,
-    //     RIGHT: THREE.MOUSE.ROTATE
-    // };
+    controls.mouseButtons = {
+        LEFT: THREE.MOUSE.PAN,
+        MIDDLE: THREE.MOUSE.DOLLY,
+        RIGHT: THREE.MOUSE.ROTATE
+    };
 }
 
 function loadTextures(){
@@ -151,8 +135,8 @@ function loadTextures(){
         gltfloader.load(
             './models/gltf/board.gltf',
             function ( gltf ) {
-                gltf.scene.scale.multiplyScalar(0.1);
-                gltf.scene.position.set(-0.5, -0.5, 0.5);
+                gltf.scene.scale.multiplyScalar(1);
+                gltf.scene.position.set(0, 0, 0);
                 gltf.scene.traverse(function (child) {
                     if (child.isMesh) {
                         child.material = new THREE.MeshPhongMaterial({ map: texture, side: THREE.DoubleSide });
@@ -195,9 +179,9 @@ function loadModels() {
     const gltfloader = new GLTFLoader();
 
 
-    gltfloader.load('./models/scene/0627scene1/0627scene1test01.gltf', function (gltf) {
-        gltf.scene.scale.multiplyScalar(0.1);
-        gltf.scene.position.set(0.5, -0.5, 0.5);
+    gltfloader.load('./models/scene/scene2_v11/scene2_v11/scene2_v11.gltf', function (gltf) {
+        gltf.scene.scale.multiplyScalar(0.5);
+        gltf.scene.position.set(-3, -20, -3);
         scene1.add(gltf.scene);
         (error) => {
             console.log('An error happened');
@@ -211,44 +195,81 @@ function changeScene(){
     annotationsDownload.onreadystatechange = function () {
         if (annotationsDownload.readyState === 4) {
             const annotations = JSON.parse(annotationsDownload.responseText);
+            
             const view1 = document.getElementById('view1');
             const view2 = document.getElementById('view2');
             const view3 = document.getElementById('view3');
             const view4 = document.getElementById('view4');
+            const viewList = [view1, view2, view3, view4];
 
-            var timer = window.setInterval( 
-                function nextScene() { 
-                    if (i < 4){
-                        gotoAnnotation(annotations[i])
-                        i ++;
-                    } else {
-                        i = 0;
-                    }
+            if (change==true) {
+                var timer = window.setInterval( 
+                    function nextScene() { 
+                        if (i < 4){
+                            gotoAnnotation(annotations[i]);
+                            for (let i = 0; i < viewList.length; ++i){
+                                viewList[i].style.backgroundColor = 'yellow';
+                                viewList[i].style.color = 'blue';
+                            }
+                            viewList[i].style.backgroundColor = 'blue';viewList[i].style.color = 'white';
+                            i ++;
+                        } else {
+                            i = 0;
+                        }
                 }, 5000)
+            } else {
+                change = true;
+            }
+
+            window.addEventListener('mousedown',(event) => {
+                change = false;
+                window.clearInterval(timer);
+                console.log('change:', change);
+            });
 
             view1.addEventListener('click', function () {
                 gotoAnnotation(annotations[0]);
+                changeColor(viewList, view1);
                 window.clearInterval(timer);
             });
 
             view2.addEventListener('click', function () {
                 gotoAnnotation(annotations[1]);
+                changeColor(viewList, view2);
                 window.clearInterval(timer);
             });
 
             view3.addEventListener('click', function () {
                 gotoAnnotation(annotations[2]);
+                changeColor(viewList, view3);
                 window.clearInterval(timer);
             });
 
             view4.addEventListener('click', function () {
                 gotoAnnotation(annotations[3]);
+                changeColor(viewList, view4);
                 window.clearInterval(timer);
+
             });
+
+            
+            
+            // progressBar.style.display = 'none';
         }
     };
     annotationsDownload.send();
+    console.log('change:', change);
 }
+
+function changeColor(viewList, view) {
+    for (let i = 0; i < viewList.length; ++i){
+        viewList[i].style.backgroundColor = 'yellow';
+        viewList[i].style.color = 'blue';
+    }
+    view.style.backgroundColor = 'blue';
+    view.style.color = 'white';
+}
+
 
 function onClick(event) {
     raycaster.setFromCamera(

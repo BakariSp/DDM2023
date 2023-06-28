@@ -191,9 +191,6 @@ function loadModels() {
     );
 }
 
-
-
-
 function changeScene(){
     const annotationsDownload = new XMLHttpRequest();
     annotationsDownload.open('GET', 'json/annotation3.json');
