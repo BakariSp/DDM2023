@@ -178,7 +178,7 @@ function loadModels() {
 
     
     gltfloader.load(
-        './models/scene/Scene3/s3.gltf',
+        './models/scene/ss3/s3.gltf',
         function (gltf) {
         gltf.scene.scale.multiplyScalar(0.5);
         gltf.scene.position.set(0.5, -0.5, 0.5);
@@ -368,7 +368,7 @@ function gotoAnnotation(a) {
         )
         .easing(TWEEN.Easing.Cubic.Out)
         .start()
-        
+
     cameraTarget1 = new THREE.Vector3( a.lookAt.x, a.lookAt.y, a.lookAt.z);
 
     new TWEEN.Tween(controls.target)
