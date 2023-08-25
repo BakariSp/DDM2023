@@ -1,16 +1,24 @@
 import * as THREE from 'three';
 import { PLYLoader } from 'three/addons/loaders/PLYLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RectAreaLightHelper } from 'three/addons/helpers/RectAreaLightHelper.js';
-import Stats from 'three/addons/libs/stats.module.js'
+
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { TexturePass } from 'three/addons/postprocessing/TexturePass.js';
+import { ClearPass } from 'three/addons/postprocessing/ClearPass.js';
+import { MaskPass, ClearMaskPass } from 'three/addons/postprocessing/MaskPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { RectAreaLightUniformsLib } from './RectAreaLightUniformsLib.js';
 import TWEEN from '@tweenjs/tween.js';
 
 RectAreaLightUniformsLib.init();
 
-let camera1, cameraTarget1, scene1, renderer1, lastFrameTime = 0, resizeScale = 0.6;
+let camera1, cameraTarget1, scene1, renderer1,  composer, lastFrameTime = 0, resizeScale = 0.6;
+let textMesh, boxMesh;
 let lampMesh = new THREE.Mesh();
 let rectLight, spotLight;
 let annotations = {};
@@ -19,6 +27,7 @@ let x, y, z;
 let change = true;
 let pointLight = new THREE.PointLight(0xffffff);
 let i=0;
+let particles;
 
 const frameInterval = 1000 / 60;
 const annotationMarkers = []
@@ -26,6 +35,11 @@ const targetObject = new THREE.Object3D();
 const raycaster = new THREE.Raycaster()
 const sceneMeshes = new Array()
 const canvasContainer = document.getElementById('canvas-container');
+const numMeshes = [];
+const numParticles = 10;
+const centerPoint = new THREE.Vector3(0,0,0);
+const rotationAxis = 'X'; // Change to 'X' or 'Y' as needed
+// const radius = 8;
 
 targetObject.position.set(0, 0, 50);
 pointLight.castShadow = true;
@@ -57,8 +71,10 @@ function init() {
         console.log('mouse up');
         changeScene();
     });
-    loadModels();
+    // loadModels();
+    // scrollText();
     changeScene();
+    loadNumbers();
     loadVideo(scene1, './models/video/output.mp4', 1, 17, -16.5, 7.5, 9,0.9);
     loadVideo(scene1, './models/video/output.mp4', 1, 17, -5.5, 7.5, 9,0.9);
     loadVideo(scene1, './models/video/output.mp4', 1, 17, 5.5, 7.5, 9,0.9);
@@ -96,6 +112,9 @@ function animate() {
     controls.update();
     TWEEN.update();
     // stats.update();
+
+    // renderer1.clear();
+	// composer.render();
 }
 
 
@@ -111,12 +130,18 @@ function setupRenderer(canvas) {
     const width = canvasContainer.offsetWidth;
     const height = canvasContainer.offsetHeight;
   
-    renderer1 = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer1 = new THREE.WebGLRenderer({ canvas, antialias: true , stencil: true});
     renderer1.setPixelRatio(window.devicePixelRatio);
     renderer1.setSize(width, height);
     renderer1.setClearColor(0x634400, 1);
     renderer1.shadowMap.enabled = true;
     canvasContainer.appendChild(renderer1.domElement);
+
+    const parameters = {
+        stencilBuffer: true,
+    };
+    const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, parameters);
+    composer = new EffectComposer(renderer1, renderTarget);
 }
 
 function setupScene() {
@@ -187,6 +212,203 @@ function setupOrbitControls() {
     // };
 }
 
+
+function scrollText() {
+    const fontLoader = new FontLoader();
+    fontLoader.load( 'fonts/helvetiker_regular.typeface.json', function ( font ) {
+
+        const color = 0x006699;
+
+        const matDark = new THREE.LineBasicMaterial( {
+            color: color,
+            side: THREE.DoubleSide
+        } );
+
+        const matLite = new THREE.MeshBasicMaterial( {
+            color: color,
+            transparent: true,
+            opacity: 0.4,
+            side: THREE.DoubleSide
+        } );
+
+        const message = '   Three.js\nSimple text.';
+
+        const shapes = font.generateShapes( message, 5);
+
+        const geometry = new THREE.ShapeGeometry( shapes );
+
+        geometry.computeBoundingBox();
+
+        const xMid = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
+
+        geometry.translate( xMid, 0, 0 );
+
+        // make shape ( N.B. edge view not visible )
+
+        
+        textMesh = new THREE.Mesh( geometry, matLite );
+        textMesh.position.y =  30;
+        scene1.add( textMesh );
+        /*
+        //add a new scene for box mask
+        const scene2 = new THREE.Scene();
+        const boxGeometry = new THREE.BoxGeometry(4, 4, 4);
+		const boxMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+		scene2.add(boxMesh);
+
+        const clearPass = new ClearPass();
+		const clearMaskPass = new ClearMaskPass();
+		const maskPass1 = new MaskPass(scene1, camera1);
+		const maskPass2 = new MaskPass(scene2, camera1);
+		const outputPass = new OutputPass();
+
+		composer.addPass(clearPass);
+		composer.addPass(maskPass1);
+		composer.addPass(maskPass2);
+		composer.addPass(clearMaskPass);
+		composer.addPass(outputPass);*/
+
+        // renderer1.render();
+
+    } ); //end load function
+}
+
+/*
+function loadNumbers() {
+    const fontLoader = new FontLoader();
+    fontLoader.load( 'fonts/helvetiker_regular.typeface.json', function ( font ) {
+
+        const color = 0x006699;
+
+        const matLite = new THREE.MeshBasicMaterial( {
+            color: color,
+            transparent: true,
+            opacity: 0.4,
+            side: THREE.DoubleSide
+        } );
+
+        const message = '   Three.js\nSimple text.';
+
+        const shapes = font.generateShapes( message, 5);
+
+        const geometry = new THREE.ShapeGeometry( shapes );
+
+        geometry.computeBoundingBox();
+
+        const xMid = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
+
+        geometry.translate( xMid, 0, 0 );
+
+        // make shape ( N.B. edge view not visible )
+
+        
+        textMesh = new THREE.Mesh( geometry, matLite );
+        textMesh.position.y =  30;
+        scene1.add( textMesh );
+
+        // renderer1.render();
+
+    } ); //end load function
+}*/
+
+function loadNumbers() {
+    const fontLoader = new FontLoader();
+
+    fontLoader.load( 'fonts/helvetiker_regular.typeface.json', function (font) {
+
+        // Create an array to store geometries for numbers 1-9
+        const numberGeometries = [];
+        const positions = new Float32Array( numParticles * 3 );
+
+        let count = 0;
+        
+
+        for (let i = 0; i < numParticles; i++) {
+            const shapes = font.generateShapes((i % 9).toString(), 0.5);
+            const geometry = new THREE.ShapeGeometry(shapes);
+            numberGeometries.push(geometry);
+
+            let theta = (Math.PI * 2 / numParticles) * i;
+
+            if (rotationAxis === 'X') {
+                positions[count] = centerPoint.x + radius * Math.cos(theta);
+                positions[count + 1] = centerPoint.y;
+                positions[count + 2] = centerPoint.z + radius * Math.sin(theta);
+            } else if (rotationAxis === 'Y') {
+                positions[count] = centerPoint.x + radius * Math.cos(theta);
+                positions[count + 1] = centerPoint.y + radius * Math.sin(theta);
+                positions[count + 2] = centerPoint.z;
+            } else if (rotationAxis === 'Z') {
+                positions[count] = centerPoint.x + radius * Math.cos(theta);
+                positions[count + 1] = centerPoint.y + radius * Math.sin(theta);
+                positions[count + 2] = centerPoint.z;
+            }
+
+            count += 3;
+        }
+
+        // Create a group to hold all the numbers
+        const group = new THREE.Group();
+
+        // Assume positions is an array of Vector3 representing the positions of the particles
+        // const positions = [ /* ... your particle positions ... */ ];
+
+        // Iterate through the particle positions
+        for (let i = 0; i < numParticles; i++) {
+            // Get the appropriate geometry
+            const geometry = numberGeometries[i];
+          
+            // Create a mesh with the geometry and some material
+            const mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
+          
+            // Set the position
+            mesh.position.set(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]);
+          
+            // Add to the group
+            group.add(mesh);
+            numMeshes.push(mesh);
+        }
+
+        
+        // Add the group to the scene
+        scene1.add(group);
+        // console.log(positions);
+
+    } );
+
+}
+
+function updatePositions() {
+    if( numMeshes.length > 0 ) {
+        for (let i = 0; i < numParticles; i++) {
+        // Calculate new positions, for example:
+        const theta = (Math.PI * 2 / numParticles) * i + Date.now() * 0.0001;
+        let x, y, z = 0;
+
+        if (rotationAxis === 'X') {
+            x = centerPoint.x + radius * Math.cos(theta);
+            y = centerPoint.y;
+            z = centerPoint.z + radius * Math.sin(theta);
+        } else if (rotationAxis === 'Y') {
+            x = centerPoint.x + radius * Math.cos(theta);
+            y = centerPoint.y + radius * Math.sin(theta);
+            z = centerPoint.z;
+        } else if (rotationAxis === 'Z') {
+            x = centerPoint.x + radius * Math.cos(theta);
+            y = centerPoint.y + radius * Math.sin(theta);
+            z = centerPoint.z;
+        }
+    
+        // Update the mesh position
+        numMeshes[i].position.set(x, y, z);
+        numMeshes[i].lookAt(camera1.position);
+        // numMeshes[i].rotation.z += Math.PI / 2;
+        }
+    }else{
+        console.log("updating value");
+    }
+}
 
 
 function loadModels() {
@@ -293,7 +515,7 @@ function changeScene(){
             window.addEventListener('mousedown',(event) => {
                 change = false;
                 window.clearInterval(timer);
-                console.log('change:', change);
+                // console.log('change:', change);
             });
 
             view1.addEventListener('click', function () {
@@ -327,7 +549,7 @@ function changeScene(){
         }
     };
     annotationsDownload.send();
-    console.log('change:', change);
+    // console.log('change:', change);
 }
 
 function changeColor(viewList, view) {
@@ -405,6 +627,7 @@ function handleResize() {
         const width = canvasContainer.offsetWidth;
         const height = canvasContainer.offsetHeight;
         renderer1.setSize(width, height);
+        // composer.setSize(width, height);
         // labelRenderer.setSize(window.innerWidth, window.innerHeight);
     });
 }
@@ -417,6 +640,7 @@ function animateScene1(time) {
         // labelRenderer.render(scene1, camera1);
         lastFrameTime = time;
     }
+    updatePositions();
     // console.log('camera target:', camera1.getWorldDirection(cameraTarget1));
     // console.log('camera pos:',camera1.position);
     requestAnimationFrame(animateScene1);
@@ -457,6 +681,16 @@ function gotoAnnotation(a) {
     if (a.descriptionDomElement) {
         a.descriptionDomElement.style.display = 'block'
     }
+}
+
+function createParticles() {
+    const particleGeometry = new THREE.SphereBufferGeometry(1, 6,
+        6);
+    const particleMaterial = new THREE.PointsMaterial({
+        size: 0.02,
+        sizeAtteuation: true,
+    });
+    const particle = new THREE.Points(particleGeometry, particleMaterial);
 }
 
 init();

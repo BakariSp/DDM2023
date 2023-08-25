@@ -6,24 +6,50 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link type="text/css" rel="stylesheet" href="main.css">
 		<script async src="https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js"></script>
-        import {
-	PerspectiveCamera, Scene, WebGLRenderer,
-	InstancedMesh, BoxGeometry, MeshPhongMaterial, Matrix4, Vector3, HemisphereLight
-} from 'https://unpkg.com/three@0.123.0/build/three.module.js'
         <style>
             body{
-                background-color: gainsboro;
-                color: darkblue;
+                background-color: rgb(211, 211, 210);
+                color: darkred;
             }
             a{
-                color: darkblue;
+                color: darkred;
             }
-            section .section-item:nth-child(4){
-                color:darkred;
+            section .section-item:nth-child(5){
+                color:yellow;
             }
         </style>
 	</head>
 	<body>
+        <script type="x-shader/x-vertex" id="vertexshader">
+
+			attribute float scale;
+
+			void main() {
+
+				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+				gl_PointSize = scale * ( 300.0 / - mvPosition.z );
+
+				gl_Position = projectionMatrix * mvPosition;
+
+			}
+
+		</script>
+
+		<script type="x-shader/x-fragment" id="fragmentshader">
+
+			uniform vec3 color;
+
+			void main() {
+
+				if ( length( gl_PointCoord - vec2( 0.5, 0.5 ) ) > 0.475 ) discard;
+
+				gl_FragColor = vec4( color, 1.0 );
+
+			}
+
+		</script>
+        
         <div class="header">
             <div class="title">
                 <h1>DEMO DWELLING MACHINE</h1>
@@ -80,7 +106,7 @@
 				}
 			}
 		</script>
-		<script type="module" src="./scripts/scene3.js"></script>
+		<script type="module" src="./scripts/scene5.js"></script>
 
 	</body>
 </html>
